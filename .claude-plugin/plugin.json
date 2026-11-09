@@ -4,5 +4,6 @@
   "description": "Parent-led development process: Research, Planning, Setup Tooling, Coding, Reviewing, and separately authorized Deployment, with role agents and stage skills.",
   "author": {
     "name": "Ijonas Kisselbach"
-  }
+  },
+  "license": "MIT"
 }

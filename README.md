@@ -127,3 +127,9 @@ To change intent later:
 ## Working model
 
 The parent retains decisions and stop points, uses fresh children at responsibility changes, and loads only the assigned stage/runbook and needed skills. [Canonical policy](process.md#progressive-loading-and-routing) governs gates and transitions; handoffs stay conversational with preapproved external evidence, not unsolicited reports.
+
+## License
+
+Copyright (c) 2026 Stacking Turtles. Released under the [MIT License](LICENSE).
+
+[create-verification-skill](skills/create-verification-skill/LICENSE) and [maintain-verification-skill](skills/maintain-verification-skill/LICENSE) are adapted from upstream work and keep their own MIT licenses.

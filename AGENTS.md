@@ -8,4 +8,6 @@ This directory is a reusable development-process library, **not a target applica
 - Follow the canonical [permission boundaries](process.md#shared-roles-and-parent-handoff-contract) and [external artifact policy](process.md#external-artifacts-and-review-records). No implicit installations, global/system config changes, commits, pushes, or deployment. Progress/findings stay in conversation by default; no unsolicited logs, status/review reports, or ledgers. Without an artifact agreement, obtain approval before runtime artifact writes; authorized source planning can continue.
 - During [Setup](process.md#project-instructions-agentsmd), CODER creates/updates the **target project's** `AGENTS.md` with its actual tooling and artifact agreement. Do not copy this library-specific bootstrap into an application unchanged.
 
+- Keep shared sources harness-neutral; harness specifics belong only in [harnesses.md](harnesses.md) and `harness/`. Edit role instructions in `roles/`, never the generated `agents/` or `harness/pi/agents/`; regenerate with `scripts/build-agents.sh` and run `scripts/check.sh` after source maintenance.
+
 Library agent files are source templates, not proof of installation or usable runtime capabilities. Do not edit global agent/skill configuration without separate authorization.

@@ -1,0 +1,9 @@
+name: planner
+description: Write and align approved feature specifications, reviewed user stories, and ordered build plans; no implementation changes.
+advertise: true
+tools: read, grep, find, ls, edit, write, contact_supervisor
+systemPromptMode: append
+inheritProjectContext: true
+inheritSkills: true
+acceptanceRole: writer
+defaultContext: fresh

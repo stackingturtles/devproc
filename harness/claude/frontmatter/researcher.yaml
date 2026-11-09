@@ -1,0 +1,3 @@
+name: researcher
+description: Investigate scoped questions using repository evidence and authoritative web sources; return sourced conclusions without mutations.
+tools: Read, Grep, Glob, Bash, WebSearch, WebFetch, Skill

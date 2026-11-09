@@ -4,4 +4,5 @@ description: A relentless interview to sharpen a plan or design.
 disable-model-invocation: true
 ---
 
-Call the Skill tool with "grilling".
+Load and apply the sibling `../grilling/SKILL.md` using the agent's supported skill
+mechanism or by reading that file directly.

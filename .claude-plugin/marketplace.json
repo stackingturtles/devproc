@@ -1,0 +1,14 @@
+{
+  "name": "devproc",
+  "owner": {
+    "name": "Ijonas Kisselbach"
+  },
+  "description": "Local marketplace for the devproc development-process library.",
+  "plugins": [
+    {
+      "name": "devproc",
+      "source": "./",
+      "description": "Parent-led development process library with role agents and stage skills."
+    }
+  ]
+}

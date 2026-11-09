@@ -19,7 +19,9 @@ A runtime environment may be a server, a website's hosting environment, a deskto
 
 `process.md` defines stage responsibilities and required gates. Skills, tooling guides, and runbooks explain how to execute them; they must not silently move a gate to another stage or weaken its policy.
 
-Before entering a stage, confirm that its required skills are available under their exact names. Planning requires `grill-with-docs` and `rate-userstories`; Coding requires `code-simplifier` and `create-verification-skill` or `maintain-verification-skill`; Reviewing requires `pr-code-review`, `ac-review`, and the project's verification skill. Resolve missing capabilities before relying on them. Local skill source lives under `skills/<skill-name>/SKILL.md`; explicitly load it or configure the agent's supported discovery mechanism rather than assuming this folder is automatically registered.
+Before entering a stage, confirm that its required skills are available under their exact names. Planning requires `grill-with-docs` and `rate-userstories`; Coding requires `code-simplifier` and `create-verification-skill` or `maintain-verification-skill`; Reviewing requires `pr-code-review`, `ac-review`, and the project's verification skill. A harness may namespace these names (for example a plugin prefix); [harnesses.md](harnesses.md) records the accepted form for each supported harness. Resolve missing capabilities before relying on them. Local skill source lives under `skills/<skill-name>/SKILL.md`; explicitly load it or configure the agent's supported discovery mechanism rather than assuming this folder is automatically registered.
+
+The process is harness-neutral. Agent-harness specifics (installation, delegation, the supervisor channel, interviews, tool names) live only in [harnesses.md](harnesses.md) and the generated role agents; this document and the runbooks must not depend on any one harness.
 
 ## Process flow
 
@@ -67,11 +69,11 @@ Each parent brief must supply:
 - Approved external artifact root, absolute `ARTIFACT_DIR`, output classes, access/retention/cleanup policy, and any ledger permission.
 - Result recipient, required evidence, completion criteria, and decisions/authorizations already obtained (with their boundaries).
 
-Global role definitions use these supplied project/process paths; do not assume a relative `../process.md`. Explicitly read applicable `SKILL.md` files and their required references before executing them. `inheritSkills: true` exposes a catalog, not executed instructions; a repository `skills/` directory is not automatically discovered. Missing required skills or tools block the affected work. Tool lists are strict allowlists: installed extensions do not override them, and named extension tools require a loaded provider. Background children may use ambient providers; foreground children need explicit provider configuration. `acceptanceRole` controls acceptance inference, not sandboxing or permission.
+Global role definitions use these supplied project/process paths; do not assume a relative `../process.md`. Explicitly read applicable `SKILL.md` files and their required references before executing them. An inherited or listed skill catalog exposes names, not executed instructions; a repository `skills/` directory is not automatically discovered. Missing required skills or tools block the affected work. Agent tool lists are strict allowlists: installed extensions do not override them, and a named tool requires a loaded provider. Harness-specific provider and acceptance settings are documented in [harnesses.md](harnesses.md); none of them grants sandboxing or permission.
 
-Use `contact_supervisor` for parent decisions, structured interviews, and material remediation/handoff coordination when available; wait for decision/interview replies and never invent user approval. If no supervisor channel is available, disclose the blocker. Routine completion returns to the brief's recipient in conversation, not an unsolicited report. Skill instructions cannot widen edit boundaries or grant leaf delegation; inspect facts directly or ask the parent to route additional work.
+Children use their harness's supervisor channel (see [harnesses.md](harnesses.md)) for parent decisions, structured interviews, and material remediation/handoff coordination; wait for decision/interview replies and never invent user approval. Where children cannot reach the user directly, the parent conducts interviews and relays answers. If no supervisor channel is available, disclose the blocker. Routine completion returns to the brief's recipient in conversation, not an unsolicited report. Skill instructions cannot widen edit boundaries or grant leaf delegation; inspect facts directly or ask the parent to route additional work.
 
-Assign one writer per checkout and one serial live-verification owner at a time; source readers remain read-only and do not drive shared application state. Use fresh child context at responsibility changes, especially independent review. Resume the same worker only for a bounded, coherent ongoing task; fork is exceptional when history is genuinely needed, not a token-saving default. Use distinct candidate-scoped coder and reviewer sessions: coder owns source/PoC/test/fix mutations, reviewer independently inspects and executes approved checks. For a multi-step subagent workflow, the parent first loads the installed `pi-subagents` skill and preflights exact agents, skills, tools, and loaded providers. Failed delegation blocks the lane; do not silently switch to generic CLI or alternate delegation. The parent inspects actual outputs and completion gates, not merely runtime success. Handoffs stay conversational or use preapproved external evidence; no new mandatory handoff files or status reports. Refresh candidate identity and affected evidence after changes. No stage grants installation (especially system/global configuration), commits, pushes, or deployment authority implicitly; obtain explicit authorization for those actions.
+Assign one writer per checkout and one serial live-verification owner at a time; source readers remain read-only and do not drive shared application state. Use fresh child context at responsibility changes, especially independent review. Resume the same worker only for a bounded, coherent ongoing task; fork is exceptional when history is genuinely needed, not a token-saving default. Use distinct candidate-scoped coder and reviewer sessions: coder owns source/PoC/test/fix mutations, reviewer independently inspects and executes approved checks. For a multi-step subagent workflow, the parent uses the delegation mechanism documented for its harness in [harnesses.md](harnesses.md) and preflights exact agents, skills, tools, and loaded providers. Failed delegation blocks the lane; do not silently switch to generic CLI or alternate delegation. The parent inspects actual outputs and completion gates, not merely runtime success. Handoffs stay conversational or use preapproved external evidence; no new mandatory handoff files or status reports. Refresh candidate identity and affected evidence after changes. No stage grants installation (especially system/global configuration), commits, pushes, or deployment authority implicitly; obtain explicit authorization for those actions.
 
 ## 1. Research
 
@@ -196,27 +198,15 @@ This stage is typically executed once per project. Later iterations reuse the en
 
 Setup covers both the agent's capabilities and the tools available in the project environment. Installing agent extensions alone is not sufficient. Preflight actual registered tools/providers and usable stage skills. Required installations or system/global configuration changes need explicit authorization through the parent; missing permission blocks readiness, not permission to install automatically.
 
-### Global Pi extensions
+### Agent harness capabilities
 
-When Pi is the coding agent, the following extensions must be installed globally:
+The coding agent's harness must supply the capabilities listed for it in [harnesses.md](harnesses.md): delegation with fresh and resumable child context, a supervisor channel, structured user questions, web search/fetch for Research, and code editing and language-server support as applicable. A harness without a section there is unsupported until one is added.
 
-- `pi-web-access`
-- `pi-subagents`
-- `@juicesharp/rpiv-ask-user-question`
-- `@narumitw/pi-lsp`
-- `pi-hashline-edit-pro`
+### Role agents
 
-### Global subagents
+The five role agents — `coder`, `infra`, `planner`, `researcher`, and `reviewer` — are generated from [roles/](roles/) for each supported harness and installed as that harness's section describes.
 
-The following subagent definitions must be installed globally:
-
-- `coder.md` — the `coder` subagent.
-- `infra.md` — the `infra` subagent.
-- `planner.md` — the `planner` subagent.
-- `researcher.md` — the `researcher` subagent.
-- `reviewer.md` — the `reviewer` subagent.
-
-**Subagents must remain enabled whenever Pi is running.** Their availability is a baseline requirement of this process, not a feature enabled only for selected stages.
+**Role agents must remain enabled whenever the coding agent is running.** Their availability is a baseline requirement of this process, not a feature enabled only for selected stages.
 
 ### Project tooling
 
@@ -265,7 +255,7 @@ Specifications, user stories, build plans, reusable skill files, maintained feat
 
 ### Project instructions (AGENTS.md)
 
-Create or update `AGENTS.md` at the project root to document this process and the project's actual languages and tooling. Document the Makefile targets and their underlying tools, including setup commands as applicable. Record the CRAP language/component profiles, pinned tools, production measurement scope, coverage basis, exclusions, and strict unrounded `<30` policy. Identify the project's verification skill path, normally `skills/verify-<project>/SKILL.md`, its maintained feature map, and the planned Coding-stage creation or maintenance task. Document the external artifact root, Make output variables, approved artifact classes, ledger location, and retention policy. Record stage responsibilities: Setup configures tooling; Coding implements, maintains the verification skill, and remediates with test, lint, static-analysis, and format-check validation; Reviewing independently assesses that skill and verifies the exact candidate through all six checks in Stage 5, with reviewers verifying and coding agents making fixes. Record the feature-document structure above, specification-led changes and alignment of the three planning documents, and the requirement to keep the required extensions available and subagents enabled.
+Create or update `AGENTS.md` at the project root to document this process and the project's actual languages and tooling. Document the Makefile targets and their underlying tools, including setup commands as applicable. Record the CRAP language/component profiles, pinned tools, production measurement scope, coverage basis, exclusions, and strict unrounded `<30` policy. Identify the project's verification skill path, normally `skills/verify-<project>/SKILL.md`, its maintained feature map, and the planned Coding-stage creation or maintenance task. Document the external artifact root, Make output variables, approved artifact classes, ledger location, and retention policy. Record stage responsibilities: Setup configures tooling; Coding implements, maintains the verification skill, and remediates with test, lint, static-analysis, and format-check validation; Reviewing independently assesses that skill and verifies the exact candidate through all six checks in Stage 5, with reviewers verifying and coding agents making fixes. Record the feature-document structure above, specification-led changes and alignment of the three planning documents, and the requirement to keep the required harness capabilities available and role agents enabled. Add any harness-specific instruction entry point or project settings that [harnesses.md](harnesses.md) lists for the harness in use.
 
 Include this rule:
 
@@ -277,8 +267,8 @@ The three required planning documents remain expected outputs of Planning; they 
 
 Before Coding begins, confirm that:
 
-- The required Pi extensions are installed globally and available.
-- The required global subagents are discoverable and enabled.
+- The harness capabilities required by [harnesses.md](harnesses.md) are installed and usable.
+- The five role agents are discoverable and enabled.
 - The project-specific tools and stage-required skills are available under their documented names and usable from the project environment.
 - The external artifact root, output routing, review-ledger permission, and retention policy are agreed; missing permission is surfaced before implementation.
 - Project-root `AGENTS.md` exists, is current, and documents the process rules and project-specific tooling and commands.

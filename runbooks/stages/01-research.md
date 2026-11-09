@@ -11,7 +11,7 @@ Read [Research](../../process.md#1-research) in full and the router-required [sh
 ## Execute
 
 1. Confirm the question, target context if any, investigation boundary, and intended recipient. Do not silently turn exploration into product decisions.
-2. For delegated web work, preflight the actual child providers registering `web_search`, `fetch_content`, `get_search_content`, and `source_check`. Installation of `pi-web-access` alone is insufficient. Missing registration blocks that work; do not substitute bash fetching or another delegation mechanism.
+2. For delegated web work, preflight that the child actually has the web search/fetch tools its harness section in [harnesses.md](../../harnesses.md) names; an installed package alone is insufficient. Missing registration blocks that work; do not substitute bash fetching or another delegation mechanism.
 3. Investigate authoritative sources and relevant repository evidence. Distinguish verified facts, inference, uncertainty, and conflicting sources; cite paths/URLs and version applicability.
 4. Discuss options and emerging opinions in conversation. Without an artifact agreement, obtain approval before fetched caches, notes, or other runtime artifact writes. Authorized planning source work remains possible; no unsolicited research report is required.
 

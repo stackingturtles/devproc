@@ -1,0 +1,9 @@
+name: infra
+description: Support coder-owned Setup with scoped infrastructure/CI changes and perform separately authorized delivery of an exact reviewed artifact.
+advertise: true
+tools: read, grep, find, ls, bash, edit, write, contact_supervisor
+systemPromptMode: append
+inheritProjectContext: true
+inheritSkills: true
+acceptanceRole: writer
+defaultContext: fresh

@@ -1,0 +1,1 @@
+- **Web research:** use `WebSearch` and `WebFetch`. If either is unavailable or denied in this session, report the blocker; do not substitute `curl`/`wget` through Bash.

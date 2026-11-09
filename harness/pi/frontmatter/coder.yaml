@@ -1,0 +1,9 @@
+name: coder
+description: Own Setup Tooling, implement approved stories during Coding, and remediate proven findings with tests and required validation.
+advertise: true
+tools: read, grep, find, ls, bash, edit, write, contact_supervisor
+systemPromptMode: append
+inheritProjectContext: true
+inheritSkills: true
+acceptanceRole: writer
+defaultContext: fresh

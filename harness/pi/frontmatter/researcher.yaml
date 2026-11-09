@@ -1,0 +1,9 @@
+name: researcher
+description: Investigate scoped questions using repository evidence and authoritative web sources; return sourced conclusions without mutations.
+advertise: true
+tools: read, grep, find, ls, bash, web_search, fetch_content, get_search_content, source_check, contact_supervisor
+systemPromptMode: append
+inheritProjectContext: true
+inheritSkills: true
+acceptanceRole: read-only
+defaultContext: fresh

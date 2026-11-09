@@ -1,0 +1,1 @@
+- **Interviews:** the parent runs `grill-with-docs` rounds with the user in the main session and supplies the resulting decisions in your brief. If drafting exposes further open decisions, return them as one `NEEDS_DECISION` round, frontier questions only with recommended answers, rather than resolving them yourself.

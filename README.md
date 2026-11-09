@@ -4,11 +4,85 @@ Reusable instructions for parent-led development with specialist agents. This is
 
 [Process and gates](process.md) · [Parent router](skills/development-process/SKILL.md) · [Agent harnesses](harnesses.md) · [Checkout instructions](AGENTS.md)
 
-## First use
+## Setup
 
-1. Keep this library's layout intact. Identify its absolute **process-root** and a separate **target/project-root** (for example `/work/my-product`).
-2. Follow your coding agent's section of [harnesses.md](harnesses.md) to load the router and, with separate authorization, install the five role agents. Supported harnesses are [Pi](harnesses.md#pi) and [Claude Code](harnesses.md#claude-code), which installs this checkout as the `devproc` plugin.
-3. Before delegated work, check the exact discoverable/enabled agents, required skills, tools, and loaded providers. Research's web tools must be usable in the child; installed packages alone are insufficient. Missing capabilities block affected work, not permission to switch delegation mechanisms.
+Clone the library once. Its absolute path is the **process-root**. Keep its layout intact, and keep it separate from your **target/project-root** (for example `/work/my-product`).
+
+```bash
+git clone https://github.com/stackingturtles/devproc.git ~/code/devproc
+```
+
+### Claude Code
+
+Add this checkout as a plugin marketplace, then install the `devproc` plugin:
+
+```bash
+claude plugin marketplace add ~/code/devproc
+```
+
+```bash
+claude plugin install devproc@devproc
+```
+
+Restart Claude Code, then check:
+- `/agents` lists `devproc:coder`, `devproc:infra`, `devproc:planner`, `devproc:researcher`, and `devproc:reviewer`.
+- The skills appear as `devproc:<name>`.
+
+Start a workflow from your target project with `/devproc:development-process`, giving the project-root, feature, and stage.
+
+The installed plugin is a copy. After pulling library changes, refresh it and restart:
+
+```bash
+claude plugin marketplace update devproc
+```
+
+```bash
+claude plugin update devproc@devproc
+```
+
+Remove any older standalone copies of these skills from `~/.claude/skills/` (for example `pr-code-review`) so the plugin's versions run. See [harnesses.md](harnesses.md#claude-code) for delegation, interviews, and target-project settings.
+
+### Pi
+
+Install the required extensions:
+
+```bash
+pi install npm:pi-web-access
+```
+
+```bash
+pi install npm:pi-subagents
+```
+
+```bash
+pi install npm:@juicesharp/rpiv-ask-user-question
+```
+
+```bash
+pi install npm:@narumitw/pi-lsp
+```
+
+```bash
+pi install npm:pi-hashline-edit-pro
+```
+
+Install the five role agents:
+
+```bash
+mkdir -p ~/.pi/agent/agents && cp ~/code/devproc/harness/pi/agents/*.md ~/.pi/agent/agents/
+```
+
+Reload Pi and check that the `coder`, `infra`, `planner`, `researcher`, and `reviewer` agents are discoverable and enabled. Repeat the copy after pulling library changes.
+
+Pi does not discover the library's `skills/` folder automatically, so load the router explicitly:
+
+> Read `~/code/devproc/skills/development-process/SKILL.md` and follow it as the parent router. Target project: `/work/my-product`. Confirm the stage and scope before acting.
+
+See [harnesses.md](harnesses.md#pi) for provider and delegation details.
+
+### Before delegated work
+
+Check the exact discoverable/enabled agents, required skills, tools, and loaded providers. Research's web tools must be usable in the child; installed packages alone are insufficient. Missing capabilities block affected work, not permission to switch delegation mechanisms.
 
 ## Layout
 

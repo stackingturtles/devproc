@@ -1,0 +1,1 @@
+- **Interviews:** the parent reads `grill-with-docs` and runs the rounds with the user in the main session. Write the three documents from the supplied decisions. Relay remaining frontier questions as one numbered round with recommendations, then wait or stop and return as described above. Inspect observable facts yourself; request any additional agent work through the parent.

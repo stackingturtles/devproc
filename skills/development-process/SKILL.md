@@ -9,7 +9,7 @@ This is a router, not a new persona or permission to run six stages. For a sourc
 
 ## Resolve and load
 
-1. Resolve **process-root** as `../..` relative to this skill directory, preserving the library layout. Resolve all bundled links below from this directory. Separately confirm the absolute **target/project-root**, feature, and authorized scope; do not treat process-root as the product checkout.
+1. Resolve symlinks to this skill's actual source directory, then resolve **process-root** as `../..` relative to that directory, preserving the library layout. Resolve all bundled links below from that source directory. Separately confirm the absolute **target/project-root**, feature, and authorized scope; do not treat process-root as the product checkout.
 2. Locate headings in [process.md](../../process.md) with search, then read bounded ranges for [Overview](../../process.md#overview), [Shared roles and parent handoff contract](../../process.md#shared-roles-and-parent-handoff-contract), and [External artifacts and review records](../../process.md#external-artifacts-and-review-records). Anchors are navigation aids, not scoped read operations; do not use fixed fragile line numbers or load the whole manual by default. Missing required policy must be read or reported blocked, never replaced with remembered summaries.
 3. Read the assigned canonical stage **in full**, including all relevant subsections and its transition/completion rules, plus its one thin runbook below. Load required subskills and specialized references only when needed for that task. The runbook cannot weaken or relocate a canonical gate.
 4. Resolve target `AGENTS.md` and `docs/<feature-name>/{specification.md,user-stories.md,build-plan.md}` stage-appropriately. Research needs no such files or completion gate. Initial Planning creates the three documents and does not require already-created docs or `AGENTS.md`; read existing applicable instructions when present. Setup bootstraps target `AGENTS.md` and tooling. Later stages use those current project inputs.
@@ -29,6 +29,8 @@ These names refer to role agents generated from [roles/](../../roles/) for each 
 
 Use one writer per checkout and one serial live driver. Start fresh child context at responsibility changes, especially reviewer independence. Resume the same worker only for a bounded coherent ongoing task. Fork is exceptional for genuinely needed history, not a token-saving default. Leaf roles do not delegate. Supply absolute process/runbook/project paths to global profiles; never rely on paths relative to their installed directory.
 
+Preflight whether role restrictions are enforced by the harness or supplied as instructions; disclose limitations and block work that requires unavailable enforced isolation. For decisions and interviews, follow the harness's native messaging or documented stop-and-return exchange. In the latter case, obtain the user's answers in the parent session and resume the same child for its bounded task; a returned question is not task completion or permission to proceed.
+
 ## Task brief template
 
 Keep briefs short; link exact source sections and preapproved evidence instead of pasting huge logs.
@@ -39,6 +41,8 @@ Process-root + canonical section + runbook (absolute paths):
 Target project-root/cwd + applicable AGENTS/planning paths (or not-yet-created):
 Allowed edits; prohibited side effects:
 Required skills (exact names/files), tools/providers and preflight result:
+Role restrictions: enforced controls versus instructions; required isolation:
+Supervisor exchange: messaging recipient/reply mechanism or stop-and-return:
 Candidate/base/range + included working-tree changes (when relevant):
 Authority: user decisions/approvals and stop point:
 Artifact permissions: approved root/absolute ARTIFACT_DIR, classes, access,

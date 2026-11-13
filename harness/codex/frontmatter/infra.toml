@@ -1,0 +1,2 @@
+name = "devproc_infra"
+description = "Support coder-owned Setup with scoped infrastructure/CI changes and perform separately authorized delivery of an exact reviewed artifact."

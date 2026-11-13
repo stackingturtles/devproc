@@ -1,0 +1,2 @@
+name = "devproc_reviewer"
+description = "Independently perform bounded checks or the full ordered six-check Reviewing stage on an exact candidate; never mutate source."

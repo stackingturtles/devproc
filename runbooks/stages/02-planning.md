@@ -11,7 +11,7 @@ Read [Planning](../../process.md#2-planning) in full, including changes to plann
 ## Execute
 
 1. Confirm target/project-root, feature folder, scope, exclusions, and allowed source writes. Own only that increment's `specification.md`, `user-stories.md`, and `build-plan.md` under target `docs/<feature-name>/`. Extra ADR/glossary files require approval.
-2. Interview through `grill-with-docs`. Capture human intent, bounded modules, decisions, constraints, visuals as needed, and intended build/install/runtime outcomes. Agree measurement scope and coverage basis as required by the canonical stage; escalate unsupported regions or known debt.
+2. Interview through `grill-with-docs`, following the harness's parent-led or parent-relayed interview mechanism in [harnesses.md](../../harnesses.md). Where the parent conducts the rounds, PLANNER writes from the supplied decisions and returns remaining questions through the supervisor exchange before continuing affected work. Capture human intent, bounded modules, decisions, constraints, visuals as needed, and intended build/install/runtime outcomes. Agree measurement scope and coverage basis as required by the canonical stage; escalate unsupported regions or known debt.
 3. Have the user review the specification. Derive LinearStories epics/stories, run `rate-userstories` over the complete set, and apply recommendations. User decisions resolve product tensions/contradictions; never invent approval.
 4. Produce dependency-ordered build steps from reviewed stories. For amendments, change the specification first, regenerate/review derived documents, and keep all three aligned before affected implementation.
 

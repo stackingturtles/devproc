@@ -23,6 +23,8 @@ A harness section below documents how each capability is provided and whether re
 
 All harnesses use the parent brief's resolved absolute `PLANNING_DIR` and approved per-run `ARTIFACT_DIR`. The [planning-location policy](process.md#planning-directory-planning_dir) keeps `<project-root>/docs/<feature-name>/` as the default; the [artifact policy](process.md#external-artifacts-and-review-records) keeps `~/.local/state/agent-workflows/<project-key>/<run-id>/` as the default and permits an approved alternate external root with the same subfolders. Record both paths and access in briefs and target `AGENTS.md` as appropriate; location selection alone grants no permission.
 
+For settings that persist across runs, the artifact agreement may approve a stable absolute parent directory containing the per-run `ARTIFACT_DIR`s (the default project-level parent is `~/.local/state/agent-workflows/<project-key>/`). Record and validate that parent separately; do not grant a broader directory implicitly. Tools still receive the assigned per-run `ARTIFACT_DIR`, and outputs remain contained there. Access to the parent does not authorize modifying other runs.
+
 Preflight access to external planning files for every relevant role. Only PLANNER writes them during authorized Planning; the other roles read them. Supply the required access through the harness's supported controls without silently broadening permissions. If read-only access is instruction-based rather than enforced, disclose that limitation; required enforced isolation remains a blocker. Never copy external planning files into the checkout as an access workaround. Keep them separate from artifact writes and cleanup.
 
 ## Pi
@@ -84,12 +86,12 @@ The plugin provides the 11 skills under [skills/](skills/) and the five role age
 **Target project setup** (CODER, during Setup, with approval for each file):
 - Keep `AGENTS.md` canonical and add a one-line `CLAUDE.md` containing `@AGENTS.md`, so Claude Code loads the same instructions.
 - In the project's `.claude/settings.json`:
-  - Allow the approved absolute `ARTIFACT_DIR`. Grant required external `PLANNING_DIR` access separately, respecting the Planning-only writer boundary and disclosing instruction-based restrictions.
+  - Allow the approved absolute artifact parent directory containing the per-run `ARTIFACT_DIR`s, as described in [Project location access](#project-location-access). If only one run directory is approved, grant that directory instead. Grant required external `PLANNING_DIR` access separately, respecting the Planning-only writer boundary and disclosing instruction-based restrictions.
   - Pre-allow the nonmutating Make gates.
   - Make commits and pushes prompt every time, so they always need explicit authorization.
   - Enable the plugin.
 
-  For example (replace the directory placeholder with the approved absolute `ARTIFACT_DIR`; this example does not grant access to external planning files):
+  For example (replace the directory placeholder with the approved absolute artifact parent directory; this example does not grant access to external planning files):
 
   ```json
   {
@@ -134,7 +136,7 @@ Codex identifies each role by the TOML `name`: `devproc_coder`, `devproc_infra`,
 
 - Keep the target's `AGENTS.md` canonical; Codex reads it directly. Record the actual tools, process paths, `PLANNING_DIR` selection/access, approved `ARTIFACT_DIR`, artifact agreement, and any instruction-based isolation limitations.
 - Configure sandbox and approval policy in the parent session. Child TOML cannot override `sandbox_mode`, `approval_policy`, `model_provider`, or `mcp_servers`. Do not broaden permissions to simulate per-role isolation. Configure any needed MCP provider in the parent only with authorization.
-- For a CLI session using workspace-write, launch from the target and include only the approved writable artifact root with `--add-dir /absolute/approved-artifact-root`. Research also needs the process checkout readable. Do not add the process checkout as writable merely to read skills. App/IDE sessions must establish equivalent approved access through their available settings.
+- For a CLI session using workspace-write, launch from the target and use `--add-dir /absolute/approved-artifact-root` for the approved writable artifact parent directory containing per-run `ARTIFACT_DIR`s, as described in [Project location access](#project-location-access). If only one run directory is approved, grant that directory instead. Tools still receive the current per-run `ARTIFACT_DIR`. Research also needs the process checkout readable. Do not add the process checkout as writable merely to read skills. App/IDE sessions must establish equivalent approved access through their available settings.
 - Preflight reads of an external `PLANNING_DIR`; do not add it as writable merely for other roles to read it. If authorized Planning needs writable access, the parent must arrange it explicitly through supported session controls. Child permissions are inherited; these settings do not enforce distinct planning-file permissions per role. Stop if the required access or isolation is unavailable.
 - Keep native subagents enabled; if configuration disables them, request authorization before changing it. Commit, push, installation, global configuration, and deployment still require explicit process authority regardless of sandbox permission.
 

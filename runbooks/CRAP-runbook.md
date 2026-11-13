@@ -96,7 +96,7 @@ Coverage records execution, not assertion strength. It does not prove correct au
 
 1. **Select the approved profile.** Fix production source scope, test selection, coverage basis, compiler/build settings, concurrency, environment, exclusions, and skip policy.
 2. **Inventory functions independently of test execution.** Include eligible functions in unimported or unexecuted production files. Define how methods, constructors, closures, accessors, nested functions, generated code, and compiler-generated entities are handled.
-3. **Collect fresh coverage and test results.** Record the revision, dirty state, input fingerprints, tools, platform, test population, and skipped-test identities. Keep coverage of subprocesses, native extensions, or other runtimes explicit.
+3. **Collect fresh coverage and test results.** Record the revision, dirty state, input fingerprints, tools, platform, test population, and skipped-test identities. Keep coverage of subprocesses, containers, native extensions, or other runtimes explicit.
 4. **Join complexity and coverage at function level.** Use source identity, lexical ownership, and locations or provider identifiers. Do not apply a file's coverage percentage to every function in that file.
 5. **Validate before scoring.** Reject failed or unexpectedly empty test runs, stale inputs, ambiguous joins, missing required mappings, invalid counters, incompatible tools, and interrupted collections. Do not silently convert missing data into zero or full coverage.
 6. **Generate authorized results.** Mark unsupported/unmeasured regions explicitly; they cannot contribute to a claimed complete quality gate. Sort full-precision results deterministically.
@@ -318,7 +318,7 @@ The language-specific tool links in section 11 are starting points for adapter d
 
 ### Original TypeScript implementation — historical reference
 
-The source runbook was written for a TypeScript project. The following paths are **relative to that project**, not this process folder. They were named by the original runbook; those implementation files were not available locally for inspection during this rewrite.
+The source runbook was written for a TypeScript project; see the [source attribution](../README.md#license). The following paths are **relative to that project**, not this process folder. They were named by the original runbook; those implementation files were not available locally for inspection during this rewrite.
 
 | Historical project path | Responsibility recorded in the original runbook |
 | --- | --- |

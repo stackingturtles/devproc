@@ -142,7 +142,7 @@ The parent brief or target project's `AGENTS.md` can select locations without ch
 | `PLANNING_DIR` | `<project-root>/docs/<feature-name>/` | Absolute directory for one increment's `specification.md`, `user-stories.md`, and `build-plan.md` |
 | `ARTIFACT_DIR` | `~/.local/state/agent-workflows/<project-key>/<run-id>/` | Absolute external run root approved in Setup's artifact agreement, with the same seven subfolders |
 
-For example, a brief may supply `PLANNING_DIR=/approved/planning/account-registration` and `ARTIFACT_DIR=/approved/evidence/product-checkout/run-001`. These are example locations, not permission to create or access them. The parent records canonical absolute paths, including symlink resolution, and authorized access. A brief's planning selection takes precedence over the project setting, subject to applicable instructions and approvals.
+For example, a brief may supply `PLANNING_DIR=/approved/planning/account-registration` and `ARTIFACT_DIR=/approved/evidence/product-checkout/run-001`. These are example locations, not permission to create or access them. The parent records canonical absolute paths, including symlink resolution, and authorized access. A brief's planning selection takes precedence over the project setting for location only. It grants no additional access or authority; conflicts with project access or authority rules block affected work until the parent resolves them.
 
 Only PLANNER writes planning documents during authorized Planning; other roles read them. External planning documents stay canonical outside the checkout and must not be copied into or committed to it. Generated outputs stay inside the approved external `ARTIFACT_DIR`, separate from planning inputs. Defaults are unchanged when no override is supplied. See the [planning-location policy](process.md#planning-directory-planning_dir), [artifact agreement](process.md#external-artifacts-and-review-records), and [harness access notes](harnesses.md#project-location-access).
 
@@ -182,3 +182,5 @@ The parent retains decisions and stop points, uses fresh children at responsibil
 Copyright (c) 2026 Stacking Turtles. Released under the [MIT License](LICENSE).
 
 [create-verification-skill](skills/create-verification-skill/LICENSE) and [maintain-verification-skill](skills/maintain-verification-skill/LICENSE) are adapted from upstream work and keep their own MIT licenses.
+
+The [CRAP runbook](runbooks/CRAP-runbook.md) originated in the Xygote TypeScript project. Its historical implementation map is retained as a reference.

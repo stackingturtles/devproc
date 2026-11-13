@@ -5,6 +5,7 @@
 #   3. Relative Markdown links resolve.
 #   4. The Claude Code plugin manifests validate (skipped if `claude` is absent).
 #   5. Codex agent TOML parses and contains the required fields (Python 3.11+).
+#   6. Renderers propagate source-read failures without emitting partial agents.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,6 +15,9 @@ fail() { echo "FAIL: $*" >&2; status=1; }
 
 echo "== generated agents"
 "$root/scripts/build-agents.sh" --check || fail "generated agents are stale"
+
+echo "== renderer regression tests"
+python3 -B "$root/scripts/test-build-agents.py" || fail "renderer regression tests failed"
 
 echo "== Codex agent TOML"
 python3 -B - <<'PY' || fail "Codex agent validation failed (requires Python 3.11+)"

@@ -1,6 +1,6 @@
 # Agent harnesses
 
-[process.md](process.md), the [runbooks](runbooks/), the [skills](skills/), and the role bodies in [roles/](roles/) are harness-neutral. Everything that depends on a particular coding-agent harness lives here and under [harness/](harness/). Supported harnesses: [Pi](#pi) and [Claude Code](#claude-code).
+[process.md](process.md), the [runbooks](runbooks/), the [skills](skills/), and the role bodies in [roles/](roles/) are harness-neutral. Everything that depends on a particular coding-agent harness lives here and under [harness/](harness/). Supported harnesses: [Pi](#pi), [Claude Code](#claude-code), and [OpenAI Codex](#openai-codex).
 
 ## Capability contract
 
@@ -9,15 +9,15 @@ Every supported harness must give the parent and the five role agents:
 | Capability | Used for |
 | --- | --- |
 | Delegation with fresh child context, resumable for a bounded ongoing task | Responsibility changes, independent review |
-| Leaf children that cannot delegate further | Role boundaries |
-| Strict per-role tool allowlists | Planner/reviewer/researcher boundaries |
-| A supervisor channel from child to parent | Decisions, interviews, blockers |
-| Structured user questions from the parent | Interviews, approvals |
+| Leaf children forbidden to delegate; remove spawning tools where supported | Role boundaries |
+| Per-role tool restrictions where supported; disclosed instruction-based boundaries otherwise | Planner/reviewer/researcher boundaries |
+| A supervisor exchange from child to parent: native messaging or documented stop-and-return | Decisions, interviews, blockers |
+| User questions from the parent, structured when supported | Interviews, approvals |
 | Web search and fetch in the researcher | Research |
 | Explicit skill loading by absolute `SKILL.md` path | Every stage |
 | File editing; language-server support where available | Setup, Coding |
 
-A harness section below documents how each capability is provided. A capability the harness lacks is a disclosed blocker, never permission to improvise another mechanism.
+A harness section below documents how each capability is provided and whether restrictions are enforced by the harness or supplied through instructions. Instructions do not create tool isolation or a sandbox. Work requiring enforced isolation is blocked if unavailable. Other missing required capabilities are disclosed blockers, never permission to improvise another mechanism.
 
 ## Pi
 
@@ -103,13 +103,51 @@ The plugin provides the 11 skills under [skills/](skills/) and the five role age
 - The artifact root is an allowed directory.
 - No conflicting global skill copies remain, or the user has accepted them.
 
-## Maintaining both harnesses
+## OpenAI Codex
 
-- **Role instructions:** edit [roles/](roles/), never the generated agents. `roles/_shared.md` holds rules appended to every role, such as how to communicate with the user. Harness-specific frontmatter and notes live in `harness/<harness>/frontmatter/` and `harness/<harness>/notes/` (`_all.md` applies to every role; `<role>.md` adds role-specific notes). Regenerate with `scripts/build-agents.sh`. Pi output goes to `harness/pi/agents/`; Claude Code output goes to `agents/` (set by `harness/claude/output-dir`).
+**Install.** Use a current local Codex client supporting standalone custom agents. Follow [README setup](README.md#openai-codex) to copy the five generated TOML files from [harness/codex/agents/](harness/codex/agents/) into `~/.codex/agents/` (or `$CODEX_HOME/agents/` when customized), then start a new session. Inspect conflicts before replacing any existing file. Project-scoped installation into the target's `.codex/agents/` is an alternative requiring authorization for those target files. Do not install both copies without resolving overrides. No edits to `~/.codex/config.toml` are needed for standalone role discovery.
+
+Codex identifies each role by the TOML `name`: `devproc_coder`, `devproc_infra`, `devproc_planner`, `devproc_researcher`, and `devproc_reviewer`. The files contain `name`, `description`, and `developer_instructions`; they inherit the parent's model and reasoning settings. Do not add an invented `tools` allowlist or child permission override. The [official custom-agent documentation](https://learn.chatgpt.com/docs/agent-configuration/subagents#custom-agents) describes the schema, supported feature reductions, and inheritance.
+
+**First use and skills.** Load the router by its absolute checkout path, or link the skill directories as described in the README and select `$development-process`. Codex discovers repository skills in `.agents/skills/` and user skills in `~/.agents/skills/`, including symlinked folders; this library's plain `skills/` directory needs explicit loading or registration. Preserve the entire checkout, resolve symlinks before computing process-root, and supply absolute source paths in briefs. Check for duplicates in both project and user locations; Codex can display both copies of a skill with the same name. See [official skill discovery](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills).
+
+| Capability | Codex mechanism |
+| --- | --- |
+| Delegation | Native subagent tools, selecting the exact `devproc_*` custom agent. Start a new child without forked history at responsibility changes; use the client's native follow-up/resumption tool for the same bounded task. Inspect the actual registered schemas; if this client cannot select custom roles or provide fresh context, the affected lane is blocked. Do not substitute `codex exec`, a generic worker, or shell-based orchestration. |
+| Leaf children | Explicit instructions prohibit further delegation. Custom TOML does not establish a strict spawning-tool allowlist; do not claim the tool is absent. |
+| Role tool boundaries | Instruction-based role/edit restrictions plus any supported capability reductions. All five roles inherit parent permissions, provider, and MCP servers; a read-only role instruction does not establish a separate read-only sandbox. |
+| Supervisor exchange | Native child-to-parent messaging when exposed. For example, sessions exposing `collaboration.send_message` can send to the parent recipient supplied in the brief; the parent uses the available follow-up tool to deliver answers. Preflight the recipient, delivery, and reply mechanism. Otherwise use the stop-and-return exchange below. |
+| User questions | The parent uses `request_user_input` or an equivalent question tool only when available and permitted in the current mode; otherwise ordinary conversation. Follow the tool's limits and use conversation for approvals where the question tool cannot request them. Children relay questions to the parent. |
+| Web | Native web search and page retrieval (for example `web.run` / `web__run`), or an explicitly approved search/fetch provider. Preflight actual child access. Cached versus live search follows parent configuration; time-sensitive research needs a usable live source. Missing required search/fetch blocks research; no shell-fetch substitution. |
+| Editing / LSP | Native patch/edit and shell tools within the brief and parent permissions; language-server support only when actually available. |
+| Skill names | Exact skill names such as `pr-code-review`; always read the required files at the supplied absolute paths. Built-in `/review` is not the process's `pr-code-review` skill or six-check Reviewing stage. |
+
+**Interviews and decisions.** The parent reads [grill-with-docs](skills/grill-with-docs/SKILL.md), runs the interview rounds with the user in the main session, and supplies the decisions to a fresh `devproc_planner`. The child writes the three aligned documents and relays any remaining frontier questions with recommendations. Native messaging is a coordination channel, not user approval: the child waits for answers before dependent work. If messaging or waiting for a reply is unavailable, the child stops and returns a `NEEDS_DECISION` section with numbered questions, recommended answers, and blocked work. The parent obtains the user's answers and resumes the same child for its bounded task, relaying answers verbatim. Never treat a returned question as completion, silence as consent, or a message acknowledgment as an answer.
+
+**Target project setup** (CODER during Setup, within authorized file scope):
+
+- Keep the target's `AGENTS.md` canonical; Codex reads it directly. Record the actual tools, process paths, artifact agreement, and any instruction-based isolation limitations.
+- Configure sandbox and approval policy in the parent session. Child TOML cannot override `sandbox_mode`, `approval_policy`, `model_provider`, or `mcp_servers`. Do not broaden permissions to simulate per-role isolation. Configure any needed MCP provider in the parent only with authorization.
+- For a CLI session using workspace-write, launch from the target and include only the approved writable artifact root with `--add-dir /absolute/approved-artifact-root`. Research also needs the process checkout readable. Do not add the process checkout as writable merely to read skills. App/IDE sessions must establish equivalent approved access through their available settings.
+- Keep native subagents enabled; if configuration disables them, request authorization before changing it. Commit, push, installation, global configuration, and deployment still require explicit process authority regardless of sandbox permission.
+
+**Readiness preflight.**
+
+- Record the client/version and confirm all five exact custom roles are available for selection, not merely present as files. `/subagents` in the CLI inspects agent threads; it is not proof of installed custom-role discovery.
+- Confirm fresh child context, native follow-up/resumption, and the chosen messaging or stop-and-return exchange. Supply absolute source paths and, for messaging, the parent recipient and reply mechanism in the brief.
+- Read the stage-required skill files; resolve conflicting copies before relying on discovery.
+- Verify search/page retrieval in the researcher and the required edit/check tools in other roles. A loaded provider in the parent alone is insufficient evidence of child usability.
+- Verify parent permissions cover approved target/artifact access; disclose instruction-based role boundaries and block tasks requiring unavailable enforced isolation.
+
+This is a local Codex integration. CLI, desktop app, and IDE extension must each pass their capability preflight; this does not configure hosted cloud execution. Library validation checks generated files, not live installation or runtime delegation. See [official subagent availability and permissions](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+
+## Maintaining the harnesses
+
+- **Role instructions:** edit [roles/](roles/), never the generated agents. `roles/_shared.md` holds rules appended to every role, such as how to communicate with the user. Harness-specific frontmatter and notes live in `harness/<harness>/frontmatter/` and `harness/<harness>/notes/` (`_all.md` applies to every role; `<role>.md` adds role-specific notes). Regenerate with `scripts/build-agents.sh`. Pi output goes to `harness/pi/agents/`; Claude Code output goes to `agents/` (set by `harness/claude/output-dir`); Codex uses TOML metadata in `harness/codex/frontmatter/` and outputs `harness/codex/agents/devproc_<role>.toml`. Codex instructions use TOML literal multiline strings; the generator rejects embedded `'''` delimiters.
 - **Harness-specific wording:** keep it in this file and `harness/`. The check flags harness tool and package names anywhere else.
-- **Before committing:** run `scripts/check.sh`. It fails on stale generated agents, harness-specific terms in shared files, broken relative Markdown links, and an invalid plugin manifest (when the `claude` CLI is available).
+- **Before committing:** run `scripts/check.sh` with Bash and Python 3.11+ (standard-library `tomllib`; no package installation needed). It fails on stale generated agents, invalid Codex TOML/required fields, harness-specific terms in shared files, broken relative Markdown links, and an invalid plugin manifest (when the `claude` CLI is available).
 - **Adding a harness:**
-  1. Add `harness/<name>/frontmatter/<role>.yaml` for all five roles, plus `harness/<name>/notes/_all.md`.
+  1. Add metadata for all five roles and `harness/<name>/notes/_all.md`. Markdown agents use `frontmatter/<role>.yaml`; Codex uses `frontmatter/<role>.toml`. Extend the generator/validator if the new harness uses another format.
   2. Add a section here covering every row of the capability contract.
   3. Add the harness's distinctive terms to the check's term list.
   4. Regenerate.

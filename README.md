@@ -80,6 +80,42 @@ Pi does not discover the library's `skills/` folder automatically, so load the r
 
 See [harnesses.md](harnesses.md#pi) for provider and delegation details.
 
+### OpenAI Codex
+
+Install and sign in using the [official Codex CLI setup](https://learn.chatgpt.com/docs/codex/cli). Use a current local client with standalone custom-agent TOML support. For the desktop app or IDE extension, check that the same custom agents and delegation tools are available; these instructions do not configure hosted cloud tasks.
+
+Copy the five generated role agents (review any overwrite prompts):
+
+```bash
+mkdir -p ~/.codex/agents
+cp -i ~/code/devproc/harness/codex/agents/*.toml ~/.codex/agents/
+```
+
+These paths assume the default `CODEX_HOME` (`~/.codex`); use your configured directory if different. Repeat the copy after pulling library changes, updating only the files installed from this library. Start a new session and confirm the exact custom names: `devproc_coder`, `devproc_infra`, `devproc_planner`, `devproc_researcher`, and `devproc_reviewer`. Check for project-local overrides in the target's `.codex/agents/`.
+
+Codex does not automatically discover this checkout's `skills/` directory. You can load the router directly:
+
+> Read `~/code/devproc/skills/development-process/SKILL.md` and follow it as the parent router. Target project: `/work/my-product`. Use the Codex role agents for the approved stage. Confirm the stage and scope before acting.
+
+For skill discovery, optionally link the bundled skill directories into `~/.agents/skills/`. This keeps their relative references in the library intact. Existing destinations, including broken symlinks, are skipped for manual review:
+
+```bash
+mkdir -p ~/.agents/skills
+for skill in "$HOME/code/devproc/skills/"*; do
+  [ -f "$skill/SKILL.md" ] || continue
+  dest="$HOME/.agents/skills/${skill##*/}"
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    printf 'Review existing skill: %s\n' "$dest"
+  else
+    ln -s "$skill" "$dest"
+  fi
+done
+```
+
+Start a new session and check `/skills`; select `$development-process` and give the target, feature, and stage. Resolve symlinks to the source checkout before resolving process paths. Skill links follow library updates; copied agent TOML files still need refreshing. Resolve duplicate skill names explicitly or supply the library's absolute source paths in the brief.
+
+The parent conducts interviews and relays child questions. Native child-to-parent messaging is used when available; otherwise the child stops and returns questions for the parent to answer and resume. Codex role boundaries are instruction-based, without strict per-role tool allowlists or separate child sandboxes. Tasks requiring enforced isolation remain blocked if unavailable. See [harnesses.md](harnesses.md#openai-codex) for the full capability contract and preflight.
+
 ### Before delegated work
 
 Check the exact discoverable/enabled agents, required skills, tools, and loaded providers. Research's web tools must be usable in the child; installed packages alone are insufficient. Missing capabilities block affected work, not permission to switch delegation mechanisms.
@@ -91,9 +127,9 @@ Check the exact discoverable/enabled agents, required skills, tools, and loaded 
 | [process.md](process.md), [runbooks/](runbooks/), [skills/](skills/) | Harness-neutral process, stage runbooks, and skills |
 | [roles/](roles/) | Harness-neutral role instructions (source of the role agents) |
 | [harness/](harness/), [harnesses.md](harnesses.md) | Per-harness frontmatter, notes, and documentation |
-| [agents/](agents/) · [harness/pi/agents/](harness/pi/agents/) | Generated role agents for Claude Code · Pi (run `scripts/build-agents.sh`; do not edit) |
+| [agents/](agents/) · [harness/pi/agents/](harness/pi/agents/) · [harness/codex/agents/](harness/codex/agents/) | Generated role agents for Claude Code · Pi · Codex (run `scripts/build-agents.sh`; do not edit) |
 | [.claude-plugin/](.claude-plugin/) | Claude Code plugin and marketplace manifests |
-| [scripts/](scripts/) | Agent generator and consistency check |
+| [scripts/](scripts/) | Agent generator and consistency check (Bash; Python 3.11+ for TOML validation) |
 
 Research/conversation does not require deployment tooling or automatic installers. Setup later preflights the full canonical project environment; installations/global configuration always need explicit authorization.
 

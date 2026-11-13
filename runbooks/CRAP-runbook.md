@@ -7,7 +7,7 @@ This runbook has two parts:
 1. **Language-independent operation:** how to collect, interpret, compare, and act on measurements.
 2. **Language-specific implementation:** how to build or adopt tools that implement that workflow for a project's languages.
 
-The command names below are a proposed common interface to implement during Setup Tooling. They are not a claim that every project, or this documentation folder, already has a CRAP collector. The original Xygote implementation is retained as a reference at the end.
+The command names below are a proposed common interface to implement during Setup Tooling. They are not a claim that every project, or this documentation folder, already has a CRAP collector. A historical TypeScript implementation is retained as a reference at the end.
 
 > **Three rules:** score individual functions; interpret coverage within a fixed, explicit measurement profile; protect intended behavior before substantial restructuring.
 
@@ -22,13 +22,13 @@ CRAP is a quality diagnostic, not a replacement for tests, linters, static analy
 - **Reviewing:** validate the candidate measurement, enforce the configured process gate, and inspect any baseline comparison. Review the affected responsibility, not just the score.
 - **Deployment:** CRAP does not establish release readiness. Follow the project's separate functional and deployment checks.
 
-Use the artifact policy approved during Setup for CRAP reports, coverage, build outputs, test caches, logs, and scratch state. All belong beneath `~/.local/state/agent-workflows/<project-key>/<run-id>/`, outside the checkout after resolving symlinks. The policy can authorize required outputs across runs; extra narrative reports still need permission. Report conclusions in conversation, and retain CI evidence only in an explicitly approved external store, never in committed project folders.
+Use the artifact policy approved during Setup for CRAP reports, coverage, build outputs, test caches, logs, and scratch state. All belong beneath the approved absolute `ARTIFACT_DIR`, using the default or an approved alternate run root. Validate canonical destinations inside that root and outside the checkout after resolving symlinks. The policy can authorize required outputs across runs; extra narrative reports still need permission. Report conclusions in conversation, and retain CI evidence only in an explicitly approved external store, never in committed project folders.
 
 ## 2. Prerequisites and common commands
 
 Before collecting:
 
-- Read the specification, user stories, acceptance criteria, `AGENTS.md`, and the project's CRAP profile.
+- Read the specification, user stories, and build plan from the brief's resolved `PLANNING_DIR` read-only, plus `AGENTS.md` and the project's CRAP profile. Never copy external planning documents into or commit them to the checkout.
 - Confirm that the collector and its language adapters exist and their regression tests pass.
 - Use the authorized, pinned runtime, analysis tools, and dependency environment. Quality commands must not install missing dependencies or upgrade tools automatically.
 - Keep repository inputs stable throughout collection. Dirty work may be measured if recorded accurately; concurrent edits invalidate the run. Prefer an isolated, stable checkout for trusted baselines.
@@ -47,11 +47,8 @@ Use the approved absolute `ARTIFACT_DIR` for the current run. The collector may 
 After execution and artifact storage are authorized, an illustrative collection is:
 
 ```sh
-# Replace the example key with the checkout-distinguishing key from AGENTS.md.
-PROJECT_ARTIFACTS="$HOME/.local/state/agent-workflows/my-project-checkout-id"
-mkdir -p "$PROJECT_ARTIFACTS"
-ARTIFACT_DIR=$(mktemp -d "$PROJECT_ARTIFACTS/run.XXXXXX")
-export ARTIFACT_DIR
+# Use the absolute run root approved during Setup and validated before execution.
+: "${ARTIFACT_DIR:?Supply the approved absolute ARTIFACT_DIR}"
 
 make quality-crap-test ARTIFACT_DIR="$ARTIFACT_DIR"
 RUN="$ARTIFACT_DIR/crap"
@@ -99,7 +96,7 @@ Coverage records execution, not assertion strength. It does not prove correct au
 
 1. **Select the approved profile.** Fix production source scope, test selection, coverage basis, compiler/build settings, concurrency, environment, exclusions, and skip policy.
 2. **Inventory functions independently of test execution.** Include eligible functions in unimported or unexecuted production files. Define how methods, constructors, closures, accessors, nested functions, generated code, and compiler-generated entities are handled.
-3. **Collect fresh coverage and test results.** Record the revision, dirty state, input fingerprints, tools, platform, test population, and skipped-test identities. Keep coverage of subprocesses, containers, native extensions, or other runtimes explicit.
+3. **Collect fresh coverage and test results.** Record the revision, dirty state, input fingerprints, tools, platform, test population, and skipped-test identities. Keep coverage of subprocesses, native extensions, or other runtimes explicit.
 4. **Join complexity and coverage at function level.** Use source identity, lexical ownership, and locations or provider identifiers. Do not apply a file's coverage percentage to every function in that file.
 5. **Validate before scoring.** Reject failed or unexpectedly empty test runs, stale inputs, ambiguous joins, missing required mappings, invalid counters, incompatible tools, and interrupted collections. Do not silently convert missing data into zero or full coverage.
 6. **Generate authorized results.** Mark unsupported/unmeasured regions explicitly; they cannot contribute to a claimed complete quality gate. Sort full-precision results deterministically.
@@ -133,12 +130,14 @@ Clean only the run's owned resources. Do not globally prune caches, temporary di
 
 Start with report-only collection. To enable a regression ratchet, retain a trusted base revision's report **before** candidate changes, using the same approved measurement policy and compatible environment. Do not compare a candidate against itself or silently replace an incompatible baseline.
 
-After artifact storage is authorized:
+After artifact storage is authorized, use a fresh approved `ARTIFACT_DIR` for the
+comparison run. Replace the baseline example with the resolved absolute path of
+the trusted report in its approved retained run; confirm read access separately:
 
 ```sh
-BASELINE="$PROJECT_ARTIFACTS/approved-baseline/crap/report.json"
+BASELINE="/absolute/approved-baseline-run/crap/report.json"
 make quality-crap ARTIFACT_DIR="$ARTIFACT_DIR" \
-  OUTPUT="$ARTIFACT_DIR/comparison" BASELINE="$BASELINE"
+  OUTPUT="$ARTIFACT_DIR/crap" BASELINE="$BASELINE"
 ```
 
 A current function is a regression under the default ratchet when:
@@ -213,7 +212,7 @@ Do not remove defensive checks, add assertion-free tests, broaden exclusions, me
 
 ## 9. Separate the shared engine from language adapters
 
-Do not port the Xygote scripts by replacing file extensions. Build a small shared scoring/reporting contract and implement the language-dependent measurements behind it. Existing trustworthy tools may supply parts of this pipeline; a new analyzer is not automatically required.
+Do not port the historical TypeScript scripts by replacing file extensions. Build a small shared scoring/reporting contract and implement the language-dependent measurements behind it. Existing trustworthy tools may supply parts of this pipeline; a new analyzer is not automatically required.
 
 The shared engine should handle:
 
@@ -263,7 +262,7 @@ These are implementation options, not finished CRAP adapters or guarantees that 
 - **Function inventory and complexity:** use the [TypeScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) or another pinned AST analyzer with explicit counting rules.
 - **Coverage:** [Vitest](https://vitest.dev/guide/coverage) with a fixed provider. Istanbul supplies function locations/counters and branch outcomes suitable for a source-level adapter. V8 is another supported provider, but changing provider requires validated equivalence or a new profile/baseline.
 - **Mapping work:** handle original TS/TSX source spans, nested callbacks, constructors, methods, accessors, source maps, and type-only declarations. Include unimported source files explicitly; Vitest's default imported-file coverage is not sufficient for a full source inventory.
-- **Xygote reference:** its recorded profile uses a TypeScript AST convention plus Istanbul branch outcomes, with a visible invocation fallback. That is one specific adaptation, not a language-wide CRAP standard.
+- **Historical reference:** the recorded TypeScript profile uses an AST convention plus Istanbul branch outcomes, with a visible invocation fallback. That is one specific adaptation, not a language-wide CRAP standard.
 
 ### Python
 
@@ -317,11 +316,11 @@ A language adapter is ready when its measurement semantics are documented, suppo
 
 The language-specific tool links in section 11 are starting points for adapter development, not evidence that interchangeable cross-language measurements already exist.
 
-### Original Xygote implementation — historical reference
+### Original TypeScript implementation — historical reference
 
-The source runbook was written for Xygote, a TypeScript project. The following paths are **relative to Xygote**, not this process folder. They were named by the original runbook; those implementation files were not available locally for inspection during this rewrite.
+The source runbook was written for a TypeScript project. The following paths are **relative to that project**, not this process folder. They were named by the original runbook; those implementation files were not available locally for inspection during this rewrite.
 
-| Xygote path | Responsibility recorded in the original runbook |
+| Historical project path | Responsibility recorded in the original runbook |
 | --- | --- |
 | `docs/testing/crap-scoring.md` | Project-specific operating guidance and policy. |
 | `Makefile`, `package.json` | User-facing commands and pinned dependencies. |
@@ -332,6 +331,6 @@ The source runbook was written for Xygote, a TypeScript project. The following p
 | `test/codequality/io.mjs` | Fingerprints, output ownership, and version checks. |
 | `test/codequality/metrics.node-test.mjs` | Scoring-tool regression tests. |
 
-The original runbook records `source-tests-v1` and `typescript-classic-v1`, Istanbul branch outcomes with an invocation fallback, and exact project-specific Node/Vitest/TypeScript pins. Do not apply those pins, test globs, environment variables, exclusions, or Xygote verification commands to another project without deliberate adaptation.
+The original runbook records `source-tests-v1` and `typescript-classic-v1`, Istanbul branch outcomes with an invocation fallback, and exact project-specific Node/Vitest/TypeScript pins. Do not apply those pins, test globs, environment variables, exclusions, or verification commands to another project without deliberate adaptation.
 
-For a new project, record the equivalent implementation map and profile in its existing approved tooling documentation or `AGENTS.md`. Reuse the shared operating contract, not Xygote-specific assumptions.
+For a new project, record the equivalent implementation map and profile in its existing approved tooling documentation or `AGENTS.md`. Reuse the shared operating contract, not historical project assumptions.

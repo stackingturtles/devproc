@@ -1,6 +1,6 @@
 ---
 name: ac-review
-description: Compare feature user-story acceptance criteria with meaningful, passing automated test evidence. Use when reviewing docs/<feature-name>/user-stories.md for behavioral test gaps, validating acceptance-criterion coverage on an exact candidate, or handing authorized missing tests and demonstrated implementation gaps to a coding agent for remediation and independent revalidation.
+description: Compare feature user-story acceptance criteria with meaningful, passing automated test evidence. Use when reviewing the supplied PLANNING_DIR/user-stories.md for behavioral test gaps, validating acceptance-criterion coverage on an exact candidate, or handing authorized missing tests and demonstrated implementation gaps to a coding agent for remediation and independent revalidation.
 ---
 
 # Acceptance-Criterion Review
@@ -13,17 +13,22 @@ approval.
 Example invocation:
 
 ```text
-/skill:ac-review docs/account-registration/user-stories.md
+/skill:ac-review /absolute/planning-directory/user-stories.md
 ```
 
 This illustrates invocation where the skill is available; it does not install or
-register the skill.
+register the skill. Replace the example argument with the resolved absolute
+`PLANNING_DIR/user-stories.md` supplied in the brief.
 
 ## Establish scope and authority
 
 Before assessing evidence:
 
-1. Resolve the exact `docs/<feature-name>/user-stories.md` and included stories.
+1. Resolve the exact `PLANNING_DIR/user-stories.md` and included stories using the
+   [planning-location policy](../../process.md#planning-directory-planning_dir).
+   Use the brief's canonical absolute paths and treat all planning documents as
+   read-only, even when externally supplied; never copy external inputs into the
+   checkout or commit them. Missing inputs/access go through the parent.
    Read the associated specification for intent, exclusions, and context, plus
    applicable `AGENTS.md`, test configuration, and relevant implementation and
    test files. Inspect all included criteria, including pre-existing behavior,
@@ -47,8 +52,8 @@ or ambiguous requirements with the user; do not derive new acceptance requiremen
 from specification context. Disclose missing tools or environment prerequisites.
 Do not automatically install dependencies, probe networks, or obtain secrets.
 Validation must not mutate source or requirements. Approved build/test output,
-logs, caches, and scratch state must use the external `ARTIFACT_DIR` under
-`~/.local/state/agent-workflows/<project-key>/<run-id>/`, never the repository.
+logs, caches, and scratch state must use the approved external `ARTIFACT_DIR`
+and its standard subfolders, never the repository or canonical planning directory.
 Validate resolved output paths, including symlinks. If execution needs unauthorized
 writes or external side effects, disclose the blocker rather than authorizing them.
 
@@ -57,7 +62,7 @@ writes or external side effects, disclose the blocker rather than authorizing th
 Copy each criterion verbatim into the conversational assessment. Give it a stable
 identity using the Linear story ID, or exact story title when no ID exists, plus
 criterion ordinal and exact text. Do not edit stories to add identifiers or mark
-checkboxes. Changing those documents requires explicit user permission.
+checkboxes. Planning changes return through the parent to authorized PLANNER work.
 
 For each criterion, inspect the actual test setup, exercised path, and assertions.
 Map required clauses to evidence: outcomes, required side effects, prohibited
@@ -131,7 +136,7 @@ status, gaps, blockers, and remediation outcome in conversation. A compact inlin
 criterion/test/assertion/command-result/status table is sufficient. Persistent
 reports, progress logs, coverage ledgers, and similar artifacts require explicit
 permission or the policy approved during Setup, and must live in the approved
-external project/run folders under `~/.local/state/agent-workflows/`. Never save
+external run folders under `ARTIFACT_DIR`. Never save
 review documentation inside the repository. Authorized implementation test sources
 and fixtures are source deliverables, not extra process reports.
 

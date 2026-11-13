@@ -212,7 +212,7 @@ It can be useful for polyglot repositories or a consistent repository-wide inven
 
 `process.md` owns stage timing: Setup configures the checker, and Reviewing runs `make dependency-audit` on the final candidate. Dependency auditing is not part of Coding's completion gate. Dependency fixes return to Coding for tested remediation; Reviewing then repeats the audit and any invalidated checks against the resulting candidate.
 
-Store authorized audit logs, machine reports, and review records only in the approved per-project/per-run subfolders under `~/.local/state/agent-workflows/`, never in the repository. `ARTIFACT_DIR` and retention follow the Setup artifact policy. Do not introduce automatic upgrade commands into the audit target.
+Store authorized audit logs, machine reports, and review records only in the standard subfolders of the approved absolute `ARTIFACT_DIR`, never in the repository. Validate canonical destinations, including symlinks, inside that root and outside the checkout. Both default and alternate roots and retention follow the Setup artifact policy. Do not introduce automatic upgrade commands into the audit target.
 
 Advisories change even when code does not. A scheduled CI check between releases is useful in addition to change-triggered checks.
 

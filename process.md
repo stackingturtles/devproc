@@ -59,11 +59,13 @@ The parent confirms ambiguous stage/feature scope with the user, routes bounded 
 
 ## Shared roles and parent handoff contract
 
+For work creating or consuming planning documents, also load the [planning-location policy](#planning-directory-planning_dir). Research without planning inputs does not require a planning directory.
+
 The parent owns routing, delegation, and relaying user interviews/approvals by default. Role ownership is explicit: PLANNER writes Planning documents; CODER owns Setup Tooling, Coding, and source remediation; RESEARCHER supplies evidence; REVIEWER independently checks candidates; INFRA supplies scoped infrastructure/CI support and separately authorized delivery. Infra is not the default Setup owner. These reusable leaf profiles do not delegate; remove spawning tools where the harness supports it, otherwise retain the leaf responsibility as a mandatory instruction and disclose that limitation.
 
 Each parent brief must supply:
 
-- Stage/mode and bounded scope, absolute process-root and target project-root paths, authoritative process sections/runbook, and stage-appropriate inputs. Supply target `AGENTS.md` and current planning-document paths when they exist; mark absent initial Research/Planning inputs as not-yet-created, not a completion gate. Setup creates/updates target `AGENTS.md`.
+- Stage/mode and bounded scope, absolute process-root and target project-root paths, authoritative process sections/runbook, and stage-appropriate inputs. Supply target `AGENTS.md`, the resolved absolute `PLANNING_DIR` and its three document paths when relevant, following [planning-location policy](#planning-directory-planning_dir). Mark absent initial Research/Planning inputs as not-yet-created, not a completion gate. Setup creates/updates target `AGENTS.md`.
 - Allowed edits and prohibited side effects; exact candidate/base/range and included working-tree changes where evidence must be candidate-scoped.
 - Required skill file paths and actual tool/provider capabilities, not just extension/package names.
 - Approved external artifact root, absolute `ARTIFACT_DIR`, output classes, access/retention/cleanup policy, and any ledger permission.
@@ -103,7 +105,7 @@ The user may remain in Research until they are ready to define a specific piece 
 
 ### Purpose and scope
 
-Planning is performed by the user with PLANNER as the document writer; the parent relays interviews and user decisions. It turns an idea or problem into a **specification of work** and the supporting documents needed to implement it. PLANNER owns the assigned `docs/<feature-name>/specification.md`, `user-stories.md`, and `build-plan.md` only, not product, test, or configuration writes. Additional ADR/glossary source requires explicit approved scope; no skill implicitly grants it.
+Planning is performed by the user with PLANNER as the document writer; the parent relays interviews and user decisions. It turns an idea or problem into a **specification of work** and the supporting documents needed to implement it. PLANNER owns the assigned `PLANNING_DIR/specification.md`, `PLANNING_DIR/user-stories.md`, and `PLANNING_DIR/build-plan.md` only, not product, test, or configuration writes. Additional ADR/glossary source requires explicit approved scope; no skill implicitly grants it.
 
 Each planning iteration should cover a small, verifiable increment rather than the entire software product. A six-week project should not be handed to a coding agent as one undivided specification. Even at this initial stage, the work should be broken into smaller modules that can be implemented and verified independently where practical.
 
@@ -119,7 +121,9 @@ Every execution of Planning produces three documents:
 
 ### Recommended folder structure
 
-Keep each planning iteration's three documents together under `docs/<feature-name>/`, with paths relative to the project root. Choose a descriptive feature name, such as `account-registration`:
+#### Planning directory (`PLANNING_DIR`)
+
+`PLANNING_DIR` is the absolute directory holding one increment's three canonical documents. Use the location supplied in the parent brief, otherwise the applicable target `AGENTS.md` setting, otherwise the default `<project-root>/docs/<feature-name>/`. Choose a descriptive feature name, such as `account-registration`. With no override, the default repository layout is unchanged:
 
 ```text
 docs/<feature-name>/
@@ -129,6 +133,12 @@ docs/<feature-name>/
 ```
 
 `specification.md` is the source of truth; derive `user-stories.md` and `build-plan.md` from it and keep them aligned.
+
+The parent may instead supply an absolute directory outside the checkout. Record the resolved `PLANNING_DIR`, all three absolute file paths, and authorized access in every relevant brief; do not rediscover the current increment by scanning old documents. A brief override selects inputs, not additional authority: resolve conflicts with applicable project instructions through the parent before proceeding.
+
+Resolve the project root, planning directory, and document paths canonically, including symlinks. For a not-yet-created directory or file, resolve its nearest existing ancestor and revalidate after creation. Reject document paths that escape the selected planning directory through symlinks; stop if paths or access change during a task. PLANNER alone may create or amend these documents during authorized Planning. All other roles read them without mutation; requirement changes return through the parent to Planning. If required external reads or planner writes are unavailable, report the blocker rather than copying files into the checkout or broadening permissions implicitly.
+
+Externally supplied planning documents remain canonical outside the checkout: never copy them into it or commit them to the target repository. They are source inputs, separate from `ARTIFACT_DIR`; runtime output and artifact cleanup must not write to or remove them. `PLANNING_DIR` is a brief/project-instruction parameter, not a new configuration-file format or an environment variable that tools automatically discover.
 
 ### 2.1 Specification of work
 
@@ -234,10 +244,10 @@ Setup configures the targets; Reviewing (Stage 5) executes CRAP measurement and 
 
 ### External artifacts and review records
 
-Keep all build-time artifacts and review documents outside the repository, under:
+`ARTIFACT_DIR` is the approved absolute root for one run's build-time artifacts and review documents, always outside the checkout. Its default is `~/.local/state/agent-workflows/<project-key>/<run-id>/` (expand `~` to an absolute path). Setup's artifact agreement may approve a different absolute run root. Both use the same subfolder layout:
 
 ```text
-~/.local/state/agent-workflows/<project-key>/<run-id>/
+ARTIFACT_DIR/
 ├── build/
 ├── coverage/
 ├── crap/
@@ -247,19 +257,21 @@ Keep all build-time artifacts and review documents outside the repository, under
 └── scratch/
 ```
 
-Use a project key that distinguishes checkouts, not just their display names, and a unique run ID. Resolve paths and reject destinations outside this approved root or inside the checkout, including through symlinks. Do not use repository-local `dist/`, `build/`, coverage/report folders, `docs/reviews/`, or arbitrary `/tmp` locations for these outputs.
+Use a project key that distinguishes checkouts, not just their display names, and a unique run ID for the default; an alternate root must provide equivalent checkout/run separation. Record the resolved absolute `ARTIFACT_DIR` in the brief and pass it to Make targets and tools. A location alone is not write permission. Resolve the root and output paths canonically and reject destinations outside this approved root or inside the checkout, including through symlinks. For new paths, validate the nearest existing ancestor and revalidate after creation; stop if the approved root or containment changes. Keep artifact destinations separate from canonical planning documents. Do not use repository-local `dist/`, `build/`, coverage/report folders, `docs/reviews/`, or arbitrary `/tmp` locations for these outputs.
 
 During Setup, agree the required artifact classes, review-ledger path, access controls, retention, and cleanup policy once with the user. Approval then covers those defined outputs across authorized runs; it is not permission for unsolicited progress reports or arbitrary extra documents. Review ledgers belong in an approved `reviews/` subfolder and may be retained across rounds; record their scope and keep earlier evidence rather than overwriting unrelated runs. Retain CI evidence in a user-approved external store populated from this layout, never by committing generated reports.
 
-Specifications, user stories, build plans, reusable skill files, maintained feature maps, and authorized test sources/fixtures are project source deliverables, not generated run artifacts. They remain in the repository. Feature maps belong beside the project verification skill at `skills/verify-<project>/features/`; they describe how to verify behavior, not the results of a particular run.
+Specifications, user stories, and build plans are source deliverables, not generated run artifacts. By default they remain in the repository; the approved external mode keeps them only in the supplied `PLANNING_DIR`, under the [planning-location policy](#planning-directory-planning_dir). Reusable skill files, maintained feature maps, and authorized test sources/fixtures remain project source in the repository. Feature maps belong beside the project verification skill at `skills/verify-<project>/features/`; they describe how to verify behavior, not the results of a particular run.
 
 ### Project instructions (AGENTS.md)
 
 Create or update `AGENTS.md` at the project root to document this process and the project's actual languages and tooling. Document the Makefile targets and their underlying tools, including setup commands as applicable. Record the CRAP language/component profiles, pinned tools, production measurement scope, coverage basis, exclusions, and strict unrounded `<30` policy. Identify the project's verification skill path, normally `skills/verify-<project>/SKILL.md`, its maintained feature map, and the planned Coding-stage creation or maintenance task. Document the external artifact root, Make output variables, approved artifact classes, ledger location, and retention policy. Record stage responsibilities: Setup configures tooling; Coding implements, maintains the verification skill, and remediates with test, lint, static-analysis, and format-check validation; Reviewing independently assesses that skill and verifies the exact candidate through all six checks in Stage 5, with reviewers verifying and coding agents making fixes. Record the feature-document structure above, specification-led changes and alignment of the three planning documents, and the requirement to keep the required harness capabilities available and role agents enabled. Add any harness-specific instruction entry point or project settings that [harnesses.md](harnesses.md) lists for the harness in use.
 
+Record `PLANNING_DIR` or its per-increment selection rule, the fixed three filenames, canonical path validation, and read-only access outside authorized PLANNER work. Record the approved absolute `ARTIFACT_DIR` or run-root allocation rule and its standard subfolders; an alternate root must be explicitly covered by the artifact agreement. Distinguish external canonical planning inputs from generated artifacts and their cleanup. Carry the actual resolved paths in each brief rather than leaving placeholders for workers to guess.
+
 Include this rule:
 
-> Do not create or persist progress logs, status reports, review reports, or similar process documentation without explicit user permission or the artifact policy approved during Setup. All authorized build-time artifacts and review documents must live under the project's run folders in `~/.local/state/agent-workflows/`, never in the repository. Report progress and review findings in conversation by default; permission to implement or review is not blanket permission to create additional documents.
+> Do not create or persist progress logs, status reports, review reports, or similar process documentation without explicit user permission or the artifact policy approved during Setup. All authorized build-time artifacts and review documents must live under the approved external `ARTIFACT_DIR`, never in the repository. Report progress and review findings in conversation by default; permission to implement or review is not blanket permission to create additional documents.
 
 The three required planning documents remain expected outputs of Planning; they are not prohibited extra reports. The project verification skill and its maintained feature map are required Coding outputs, not permission to create extra reports.
 
@@ -271,6 +283,7 @@ Before Coding begins, confirm that:
 - The five role agents are discoverable and enabled.
 - The project-specific tools and stage-required skills are available under their documented names and usable from the project environment.
 - The external artifact root, output routing, review-ledger permission, and retention policy are agreed; missing permission is surfaced before implementation.
+- The brief identifies the resolved absolute `PLANNING_DIR` and its aligned documents; required reads and Planning-only writes are available within the approved scope, including for an external location.
 - Project-root `AGENTS.md` exists, is current, and documents the process rules and project-specific tooling and commands.
 - The project-root `Makefile` exists with the standard targets configured for the project's relevant components and underlying tools, including `dependency-audit` and the three `quality-crap` targets; running the audit or collecting project CRAP coverage is not a Setup readiness requirement.
 - The agent can invoke the relevant language, linting, analysis, build, and test tools.
@@ -281,7 +294,7 @@ This section defines the required setup, not an installation procedure or a clai
 
 ### Purpose and inputs
 
-Coding turns the reviewed planning documents into working, tested code. Before making changes, the coding agent reads the project's `AGENTS.md` and the current iteration's `docs/<feature-name>/build-plan.md`, `user-stories.md`, and `specification.md`.
+Coding turns the reviewed planning documents into working, tested code. Before making changes, the coding agent reads the project's `AGENTS.md` and the current iteration's `PLANNING_DIR/build-plan.md`, `PLANNING_DIR/user-stories.md`, and `PLANNING_DIR/specification.md` at the resolved paths in the parent brief. These are read-only inputs to Coding, including when supplied outside the checkout.
 
 Use `AGENTS.md` for project conventions and tooling commands. The specification remains the source of truth for intent and scope; the stories define verifiable acceptance criteria, and the build plan defines implementation order and dependencies.
 
@@ -331,7 +344,7 @@ Keep progress and results in conversation under the existing no-extra-reports ru
 
 Review the exact current candidate against the specification, user-story acceptance criteria, and project gates. The reviewing agent verifies evidence and reports findings; the coding agent writes tests and mutates implementation to address validated findings. Record the candidate revision and included working-tree changes so results cannot be attributed to different code. Execute the six steps in order; later fixes must not invalidate earlier evidence unnoticed.
 
-Keep results in conversation by default. Use the artifact policy approved during Setup for coverage/CRAP outputs, verification evidence, and the persistent review ledger; all live under the project's folders in `~/.local/state/agent-workflows/`. Obtain explicit approval for any additional artifact class or retention. Never write review records to `docs/reviews/` or another repository path. If required permission is missing, disclose the blocked step rather than claiming completion.
+Keep results in conversation by default. Use the artifact policy approved during Setup for coverage/CRAP outputs, verification evidence, and the persistent review ledger; all live under the approved external `ARTIFACT_DIR`. Obtain explicit approval for any additional artifact class or retention. Never write review records to `docs/reviews/` or another repository path. If required permission is missing, disclose the blocked step rather than claiming completion.
 
 The reviewing agent does not edit product code, tests, or the verification skill. It asks the coding agent to author PoC tests and remediate findings, then independently inspects and executes the evidence using approved external scratch/output paths. Read-only review means no source mutation, not a prohibition on explicitly approved test execution and external machine evidence.
 
@@ -349,7 +362,7 @@ Follow the skill's ledger and convergence rules: zero OPEN findings and two cons
 
 ### Step 2 — Acceptance-criterion test evidence
 
-Run **[ac-review](skills/ac-review/SKILL.md)** against `docs/<feature-name>/user-stories.md` and the exact current candidate. Verify that **each acceptance criterion of every in-scope user story has at least one meaningful automated test**, including criteria for pre-existing behavior. Identify each criterion verbatim and map its tests and behavioral assertions in conversation or an approved external review record. Run those tests and inspect results; filenames, test counts, or execution coverage alone are not evidence of the required behavior.
+Run **[ac-review](skills/ac-review/SKILL.md)** with the resolved absolute `PLANNING_DIR/user-stories.md` as its input argument and the exact current candidate. Planning documents remain read-only. Verify that **each acceptance criterion of every in-scope user story has at least one meaningful automated test**, including criteria for pre-existing behavior. Identify each criterion verbatim and map its tests and behavioral assertions in conversation or an approved external review record. Run those tests and inspect results; filenames, test counts, or execution coverage alone are not evidence of the required behavior.
 
 Report each criterion as COVERED-AND-PASSING, MISSING-TEST, INADEQUATELY-ASSERTED, FAILING, or BLOCKED-OR-AMBIGUOUS, with evidence and blockers. Only meaningful assertions and fresh passing execution against the candidate establish coverage; skipped or unexecuted tests do not pass. Resolve ambiguous requirements with the user rather than inventing them.
 

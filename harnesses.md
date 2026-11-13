@@ -19,6 +19,12 @@ Every supported harness must give the parent and the five role agents:
 
 A harness section below documents how each capability is provided and whether restrictions are enforced by the harness or supplied through instructions. Instructions do not create tool isolation or a sandbox. Work requiring enforced isolation is blocked if unavailable. Other missing required capabilities are disclosed blockers, never permission to improvise another mechanism.
 
+## Project location access
+
+All harnesses use the parent brief's resolved absolute `PLANNING_DIR` and approved per-run `ARTIFACT_DIR`. The [planning-location policy](process.md#planning-directory-planning_dir) keeps `<project-root>/docs/<feature-name>/` as the default; the [artifact policy](process.md#external-artifacts-and-review-records) keeps `~/.local/state/agent-workflows/<project-key>/<run-id>/` as the default and permits an approved alternate external root with the same subfolders. Record both paths and access in briefs and target `AGENTS.md` as appropriate; location selection alone grants no permission.
+
+Preflight access to external planning files for every relevant role. Only PLANNER writes them during authorized Planning; the other roles read them. Supply the required access through the harness's supported controls without silently broadening permissions. If read-only access is instruction-based rather than enforced, disclose that limitation; required enforced isolation remains a blocker. Never copy external planning files into the checkout as an access workaround. Keep them separate from artifact writes and cleanup.
+
 ## Pi
 
 **Install.** Install globally: `pi-web-access`, `pi-subagents`, `@juicesharp/rpiv-ask-user-question`, `@narumitw/pi-lsp`, and `pi-hashline-edit-pro`. With separate authorization, install or update the generated agents from [harness/pi/agents/](harness/pi/agents/) into `~/.pi/agent/agents/`, reload Pi, and check the exact discoverable/enabled agents, required skills, tools, and loaded providers. Subagents must remain enabled whenever Pi is running.
@@ -78,17 +84,17 @@ The plugin provides the 11 skills under [skills/](skills/) and the five role age
 **Target project setup** (CODER, during Setup, with approval for each file):
 - Keep `AGENTS.md` canonical and add a one-line `CLAUDE.md` containing `@AGENTS.md`, so Claude Code loads the same instructions.
 - In the project's `.claude/settings.json`:
-  - Allow the agreed artifact root (as an absolute path).
+  - Allow the approved absolute `ARTIFACT_DIR`. Grant required external `PLANNING_DIR` access separately, respecting the Planning-only writer boundary and disclosing instruction-based restrictions.
   - Pre-allow the nonmutating Make gates.
   - Make commits and pushes prompt every time, so they always need explicit authorization.
   - Enable the plugin.
 
-  For example:
+  For example (replace the directory placeholder with the approved absolute `ARTIFACT_DIR`; this example does not grant access to external planning files):
 
   ```json
   {
     "permissions": {
-      "additionalDirectories": ["/home/<user>/.local/state/agent-workflows/<project-key>"],
+      "additionalDirectories": ["/absolute/approved-artifact-root"],
       "allow": ["Bash(make test)", "Bash(make lint)", "Bash(make static-analysis)", "Bash(make format-check)", "Bash(make build)"],
       "ask": ["Bash(git commit:*)", "Bash(git push:*)"]
     },
@@ -100,7 +106,7 @@ The plugin provides the 11 skills under [skills/](skills/) and the five role age
 - `/agents` lists the five `devproc:` role agents.
 - The stage skills resolve as `devproc:<name>`.
 - `WebSearch`/`WebFetch` are permitted for the researcher.
-- The artifact root is an allowed directory.
+- The approved artifact root and required planning reads/Planning-only writes are accessible within the agreed permissions.
 - No conflicting global skill copies remain, or the user has accepted them.
 
 ## OpenAI Codex
@@ -126,9 +132,10 @@ Codex identifies each role by the TOML `name`: `devproc_coder`, `devproc_infra`,
 
 **Target project setup** (CODER during Setup, within authorized file scope):
 
-- Keep the target's `AGENTS.md` canonical; Codex reads it directly. Record the actual tools, process paths, artifact agreement, and any instruction-based isolation limitations.
+- Keep the target's `AGENTS.md` canonical; Codex reads it directly. Record the actual tools, process paths, `PLANNING_DIR` selection/access, approved `ARTIFACT_DIR`, artifact agreement, and any instruction-based isolation limitations.
 - Configure sandbox and approval policy in the parent session. Child TOML cannot override `sandbox_mode`, `approval_policy`, `model_provider`, or `mcp_servers`. Do not broaden permissions to simulate per-role isolation. Configure any needed MCP provider in the parent only with authorization.
 - For a CLI session using workspace-write, launch from the target and include only the approved writable artifact root with `--add-dir /absolute/approved-artifact-root`. Research also needs the process checkout readable. Do not add the process checkout as writable merely to read skills. App/IDE sessions must establish equivalent approved access through their available settings.
+- Preflight reads of an external `PLANNING_DIR`; do not add it as writable merely for other roles to read it. If authorized Planning needs writable access, the parent must arrange it explicitly through supported session controls. Child permissions are inherited; these settings do not enforce distinct planning-file permissions per role. Stop if the required access or isolation is unavailable.
 - Keep native subagents enabled; if configuration disables them, request authorization before changing it. Commit, push, installation, global configuration, and deployment still require explicit process authority regardless of sandbox permission.
 
 **Readiness preflight.**
@@ -137,7 +144,7 @@ Codex identifies each role by the TOML `name`: `devproc_coder`, `devproc_infra`,
 - Confirm fresh child context, native follow-up/resumption, and the chosen messaging or stop-and-return exchange. Supply absolute source paths and, for messaging, the parent recipient and reply mechanism in the brief.
 - Read the stage-required skill files; resolve conflicting copies before relying on discovery.
 - Verify search/page retrieval in the researcher and the required edit/check tools in other roles. A loaded provider in the parent alone is insufficient evidence of child usability.
-- Verify parent permissions cover approved target/artifact access; disclose instruction-based role boundaries and block tasks requiring unavailable enforced isolation.
+- Verify parent permissions cover approved target/artifact access and external planning reads/Planning-only writes; disclose instruction-based role boundaries and block tasks requiring unavailable enforced isolation.
 
 This is a local Codex integration. CLI, desktop app, and IDE extension must each pass their capability preflight; this does not configure hosted cloud execution. Library validation checks generated files, not live installation or runtime delegation. See [official subagent availability and permissions](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 

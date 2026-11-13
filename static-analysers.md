@@ -16,7 +16,7 @@ Formatting, tests, and code review remain necessary. A formatter is not a substi
 
 Commands below are examples, not commands verified against a particular project. Run tools through the project's selected package manager or environment, with pinned versions and appropriate configuration. `process.md` owns stage timing and gate policy; this guide does not move dependency auditing into Coding.
 
-Route authorized build outputs, test/tool caches, logs, coverage, CRAP reports, and review records through the configured `ARTIFACT_DIR` beneath `~/.local/state/agent-workflows/<project-key>/<run-id>/`. Keep them outside the checkout, including after symlink resolution. Rule source and deliberately authored test fixtures remain repository deliverables; generated run evidence does not.
+Route authorized build outputs, test/tool caches, logs, coverage, CRAP reports, and review records through the approved absolute `ARTIFACT_DIR` and its standard subfolders, using the default or an approved alternate run root. Validate destinations inside that root and outside the checkout, including after symlink resolution. Rule source and deliberately authored test fixtures remain repository deliverables; generated run evidence does not.
 
 ## TypeScript
 

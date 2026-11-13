@@ -133,6 +133,19 @@ Check the exact discoverable/enabled agents, required skills, tools, and loaded 
 
 Research/conversation does not require deployment tooling or automatic installers. Setup later preflights the full canonical project environment; installations/global configuration always need explicit authorization.
 
+## Project locations
+
+The parent brief or target project's `AGENTS.md` can select locations without changing the library:
+
+| Parameter | Default | Override |
+| --- | --- | --- |
+| `PLANNING_DIR` | `<project-root>/docs/<feature-name>/` | Absolute directory for one increment's `specification.md`, `user-stories.md`, and `build-plan.md` |
+| `ARTIFACT_DIR` | `~/.local/state/agent-workflows/<project-key>/<run-id>/` | Absolute external run root approved in Setup's artifact agreement, with the same seven subfolders |
+
+For example, a brief may supply `PLANNING_DIR=/approved/planning/account-registration` and `ARTIFACT_DIR=/approved/evidence/product-checkout/run-001`. These are example locations, not permission to create or access them. The parent records canonical absolute paths, including symlink resolution, and authorized access. A brief's planning selection takes precedence over the project setting, subject to applicable instructions and approvals.
+
+Only PLANNER writes planning documents during authorized Planning; other roles read them. External planning documents stay canonical outside the checkout and must not be copied into or committed to it. Generated outputs stay inside the approved external `ARTIFACT_DIR`, separate from planning inputs. Defaults are unchanged when no override is supplied. See the [planning-location policy](process.md#planning-directory-planning_dir), [artifact agreement](process.md#external-artifacts-and-review-records), and [harness access notes](harnesses.md#project-location-access).
+
 ## Walkthrough: account registration
 
 Use these prompts one at a time, reviewing results before continuing. Scope examples are **illustrative, not product decisions**: email/password registration might be included; billing and social login might be excluded. Decide the actual requirements in Planning.
@@ -143,7 +156,7 @@ Use these prompts one at a time, reviewing results before continuing. Scope exam
 **2. Planning**
 > Use PLANNER to interview me and define a bounded account-registration increment. Write the specification, derive and rate the stories, then build the ordered plan. Stop for my review; no Setup or Coding yet.
 
-The three target-project documents are `docs/account-registration/specification.md`, `docs/account-registration/user-stories.md`, and `docs/account-registration/build-plan.md`.
+With the default `PLANNING_DIR` for this example, the three target-project documents are `docs/account-registration/specification.md`, `docs/account-registration/user-stories.md`, and `docs/account-registration/build-plan.md`. If the brief supplies another planning directory, use its three canonical files instead.
 
 To change intent later:
 > Add email verification to the specification through Planning. Resolve decisions with me, regenerate and review the derived stories and build plan, and stop before affected implementation.

@@ -7,7 +7,7 @@ For a generated project map, read the index before driving the app, then use the
 ## Baseline preconditions
 
 - Launch Notes at `http://127.0.0.1:4173` with a disposable data directory.
-- Obtain an approved absolute `ARTIFACT_DIR` under `~/.local/state/agent-workflows/<project-key>/<run-id>/`, outside the checkout after resolving symlinks.
+- Obtain the approved absolute `ARTIFACT_DIR` from the brief, outside the checkout after resolving symlinks; keep outputs inside that root. Both the default and an approved alternate run root use the same standard subfolders.
 - Set `NOTES_DATA_DIR="$ARTIFACT_DIR/scratch/notes"` so concurrent runs do not share state. Create the required `verification/evidence/create-note/` and `verification/evidence/search/` subfolders under this run root before capture.
 - Seed notes titled `Quarterly plan` and `Grocery list`.
 - In this fictional example, `control-notes` and the `notes` CLI are already available on `PATH`. Real generated maps must use actual project tools; do not install these example names.

@@ -23,8 +23,12 @@ Example invocation where the skill is configured:
 
 ## 1. Establish scope, authority, and output paths
 
-Read `AGENTS.md`, the relevant `docs/<feature-name>/specification.md`,
-`user-stories.md`, and `build-plan.md`, plus build/test configuration. Requirements
+Read `AGENTS.md`, the current increment's `PLANNING_DIR/specification.md`,
+`PLANNING_DIR/user-stories.md`, and `PLANNING_DIR/build-plan.md` at the brief's
+resolved absolute paths, plus build/test configuration. Follow the
+[planning-location policy](../../process.md#planning-directory-planning_dir):
+these inputs are read-only here; do not copy external documents into the checkout
+or commit them. Requirements
 and acceptance criteria define expected behavior; current code alone does not.
 Confirm the project identity, delivery environment, approved verification scope,
 and source changes the task permits.
@@ -44,10 +48,13 @@ skills/verify-<project>/
 └── scripts/                  # only if reusable helpers are needed
 ```
 
-Run outputs do not belong there. Obtain the approved absolute `ARTIFACT_DIR`:
+Run outputs do not belong there. Obtain the approved absolute `ARTIFACT_DIR`
+under the [artifact policy](../../process.md#external-artifacts-and-review-records),
+using its default or an explicitly approved alternate run root. A verification
+run uses these standard subfolders:
 
 ```text
-~/.local/state/agent-workflows/<project-key>/<run-id>/
+ARTIFACT_DIR/
 ├── build/
 ├── verification/
 │   ├── evidence/
@@ -55,7 +62,7 @@ Run outputs do not belong there. Obtain the approved absolute `ARTIFACT_DIR`:
 └── scratch/
 ```
 
-Use a checkout-distinguishing project key and unique run ID. Validate resolved
+Keep checkout/run separation in either location mode. Validate resolved
 paths against the approved root and outside the checkout, including symlinks.
 Route binaries, screenshots, traces, logs, tool caches, isolated application data,
 and temporary HOME/profile directories beneath this run directory. Follow the

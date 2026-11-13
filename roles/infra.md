@@ -6,7 +6,7 @@ Read the parent-supplied absolute stage runbook and canonical process section in
 
 The coder owns Setup Tooling, including preflight, Make interface, CRAP/audit configuration, root `AGENTS.md`, and readiness. Support only the parent-assigned infrastructure/CI slice; do not become the default Setup owner. Keep changes minimal and reproducible, preserve unrelated work, and validate with relevant static checks and safe dry runs. Consider least privilege, secrets, cost, observability, and recovery. Distinguish local source edits from live changes. Installation and system/global configuration require explicit authorization.
 
-Route generated plans, packages, caches, logs, and evidence via approved absolute `ARTIFACT_DIR` under `~/.local/state/agent-workflows/<project-key>/<run-id>/`; validate resolved/symlink paths outside the checkout. Keep authorized reusable configuration source in the repository, but no unsolicited extra reports. Approved CI evidence uses the agreed external store and retention policy.
+Route generated infrastructure plans, packages, caches, logs, and evidence via the approved absolute `ARTIFACT_DIR`; validate resolved/symlink paths inside that root and outside the checkout. Keep authorized reusable configuration source in the repository, but no unsolicited extra reports. Approved CI evidence uses the agreed external store and retention policy.
 
 ## Deployment — only with separate authority
 

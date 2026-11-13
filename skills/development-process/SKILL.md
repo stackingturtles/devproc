@@ -10,9 +10,9 @@ This is a router, not a new persona or permission to run six stages. For a sourc
 ## Resolve and load
 
 1. Resolve symlinks to this skill's actual source directory, then resolve **process-root** as `../..` relative to that directory, preserving the library layout. Resolve all bundled links below from that source directory. Separately confirm the absolute **target/project-root**, feature, and authorized scope; do not treat process-root as the product checkout.
-2. Locate headings in [process.md](../../process.md) with search, then read bounded ranges for [Overview](../../process.md#overview), [Shared roles and parent handoff contract](../../process.md#shared-roles-and-parent-handoff-contract), and [External artifacts and review records](../../process.md#external-artifacts-and-review-records). Anchors are navigation aids, not scoped read operations; do not use fixed fragile line numbers or load the whole manual by default. Missing required policy must be read or reported blocked, never replaced with remembered summaries.
+2. Locate headings in [process.md](../../process.md) with search, then read bounded ranges for [Overview](../../process.md#overview), [Shared roles and parent handoff contract](../../process.md#shared-roles-and-parent-handoff-contract), and [External artifacts and review records](../../process.md#external-artifacts-and-review-records). For work creating or consuming planning documents, also read the [planning-location policy](../../process.md#planning-directory-planning_dir). Anchors are navigation aids, not scoped read operations; do not use fixed fragile line numbers or load the whole manual by default. Missing required policy must be read or reported blocked, never replaced with remembered summaries.
 3. Read the assigned canonical stage **in full**, including all relevant subsections and its transition/completion rules, plus its one thin runbook below. Load required subskills and specialized references only when needed for that task. The runbook cannot weaken or relocate a canonical gate.
-4. Resolve target `AGENTS.md` and `docs/<feature-name>/{specification.md,user-stories.md,build-plan.md}` stage-appropriately. Research needs no such files or completion gate. Initial Planning creates the three documents and does not require already-created docs or `AGENTS.md`; read existing applicable instructions when present. Setup bootstraps target `AGENTS.md` and tooling. Later stages use those current project inputs.
+4. Resolve target `AGENTS.md` and the current increment's absolute `PLANNING_DIR` under the [planning-location policy](../../process.md#planning-directory-planning_dir): parent brief, otherwise project instructions, otherwise the documented default. Resolve the fixed `specification.md`, `user-stories.md`, and `build-plan.md` paths canonically, including symlinks, and record them and access in the brief. Only PLANNER writes these during authorized Planning; external documents must never be copied into or committed to the checkout. Research needs no such files or completion gate. Initial Planning creates the three documents and does not require already-created docs or `AGENTS.md`; read existing applicable instructions when present. Setup bootstraps target `AGENTS.md` and tooling. Later stages use those current project inputs read-only. Missing access is a blocker, not permission to relocate inputs.
 
 ## Route only the approved work
 
@@ -38,7 +38,10 @@ Keep briefs short; link exact source sections and preapproved evidence instead o
 ```text
 Stage/mode + bounded goal/feature:
 Process-root + canonical section + runbook (absolute paths):
-Target project-root/cwd + applicable AGENTS/planning paths (or not-yet-created):
+Target project-root/cwd + applicable AGENTS path (or not-yet-created):
+Planning inputs: resolved absolute PLANNING_DIR + specification.md,
+  user-stories.md, build-plan.md paths; location source; authorized access
+  (PLANNER-only writes during Planning); or not-yet-created/not-needed:
 Allowed edits; prohibited side effects:
 Required skills (exact names/files), tools/providers and preflight result:
 Role restrictions: enforced controls versus instructions; required isolation:
@@ -46,7 +49,8 @@ Supervisor exchange: messaging recipient/reply mechanism or stop-and-return:
 Candidate/base/range + included working-tree changes (when relevant):
 Authority: user decisions/approvals and stop point:
 Artifact permissions: approved root/absolute ARTIFACT_DIR, classes, access,
-  retention/cleanup, ledger permission; or no runtime writes approved:
+  retention/cleanup, ledger permission; default or approved alternate root;
+  or no runtime writes approved:
 Recipient + completion criteria + required commands/evidence:
 ```
 

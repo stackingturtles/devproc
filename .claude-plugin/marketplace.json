@@ -7,6 +7,7 @@
   "plugins": [
     {
       "name": "devproc",
+      "version": "1.1.0",
       "source": "./",
       "description": "Parent-led development process library with role agents and stage skills."
     }

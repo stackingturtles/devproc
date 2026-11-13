@@ -18,11 +18,16 @@ Before reviewing:
    use its base branch or merge base through `HEAD`; include the working tree only
    when the user placed it in scope. Never substitute “the codebase.”
 3. Identify fixed invariants and specifications from user instructions, repository
-   docs, and touched-area contracts. Read only the material relevant to the diff.
+   docs, and touched-area contracts. For development-process work, use the brief's
+   resolved `PLANNING_DIR` inputs read-only under the
+   [planning-location policy](../../process.md#planning-directory-planning_dir);
+   do not copy external planning documents into or commit them to the checkout.
+   Read only the material relevant to the diff.
 4. Derive required test gates from repository instructions and touched workspaces.
    Cross-cutting changes require the repository’s cross-cutting gates.
 5. Choose a persistent ledger under the artifact policy approved during Setup,
-   normally `~/.local/state/agent-workflows/<project-key>/<run-id>/reviews/<sanitized-branch>-findings.md`.
+   at `ARTIFACT_DIR/reviews/<sanitized-branch>-findings.md`, using the approved
+   absolute run root from the brief (default or approved alternate location).
    Reuse the approved ledger across rounds of its recorded scope. Validate the
    resolved path is inside the approved external project area and outside the
    checkout, including symlinks. If permission is missing, ask before writing;

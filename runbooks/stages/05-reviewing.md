@@ -13,7 +13,7 @@ Read [Reviewing](../../process.md#5-reviewing) in full, target instructions and 
 For full Stage 5, execute all six canonical checks **in order**:
 
 1. Apply bounded `pr-code-review`: prove causality; route requirements-based red/green fixes to CODER. Require zero OPEN findings and two consecutive CLEAN rounds against green gates for unchanged scope. Use the approved external ledger.
-2. Apply `ac-review` to every in-scope criterion, including pre-existing behavior. Inspect meaningful assertions and fresh passing execution; route gaps to CODER.
+2. Apply `ac-review` with the brief's resolved absolute `PLANNING_DIR/user-stories.md` argument to every in-scope criterion, including pre-existing behavior. All planning inputs remain read-only; never copy external documents into or commit them to the checkout. Inspect meaningful assertions and fresh passing execution; route gaps to CODER and requirement amendments through the parent to PLANNER.
 3. Run `make quality-crap`, inspect inventory, mappings, provenance, and fresh coverage. Every eligible production function in scope must have **unrounded CRAP <30**; exactly 30 blocks. No debt ratchet or silent exclusions.
 4. Independently assess verification-skill relevance against requirements and intended environments; send missing/stale source to CODER, never edit it as reviewer.
 5. Execute real applicable project verification journeys with the assigned serial live-driver slot. Missing prerequisites block completion.

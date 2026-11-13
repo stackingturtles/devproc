@@ -48,16 +48,17 @@ bounded task silently; report additional required work to the user.
 
 ## 1. Locate the skill and prepare isolated outputs
 
-Read `AGENTS.md`, relevant specification/stories, and the existing verification
-contract. Locate `skills/verify-<project>/SKILL.md` and its `features/README.md`.
+Read `AGENTS.md`, the brief's resolved absolute `PLANNING_DIR/specification.md`,
+`PLANNING_DIR/user-stories.md`, and `PLANNING_DIR/build-plan.md`, and the existing
+verification contract. Follow the [planning-location policy](../../process.md#planning-directory-planning_dir):
+these inputs are read-only here; external documents must not be copied into or
+committed to the checkout. Locate `skills/verify-<project>/SKILL.md` and its `features/README.md`.
 Several candidates require a choice; none means stop and use
 `create-verification-skill` instead. Do not invent a second map elsewhere.
 
-Use the approved absolute `ARTIFACT_DIR` under:
-
-```text
-~/.local/state/agent-workflows/<project-key>/<run-id>/
-```
+Use the approved absolute `ARTIFACT_DIR` from the brief, under the
+[artifact policy](../../process.md#external-artifacts-and-review-records).
+Its documented default and an approved alternate root use the same subfolders.
 
 Validate canonical paths outside the checkout and inside this root, including
 symlinks. Keep all builds, evidence, logs, traces, review notes, caches, disposable
